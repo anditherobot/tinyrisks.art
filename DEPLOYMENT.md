@@ -143,3 +143,4 @@ Server configuration:
 - **Path**: /var/www/tinyrisks.art
 - **Service**: tinyrisks
 - **Domain**: tinyrisks.art
+
