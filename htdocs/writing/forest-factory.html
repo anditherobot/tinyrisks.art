@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forest Factory - Writing</title>
+  <link rel="stylesheet" href="./static/css/base.css">
+  <style>
+.detail-header{
+  grid-column:1/-1;
+  margin-bottom:2rem;
+}
+
+.article-hero{
+  grid-column:1/-1;
+  margin-bottom:3rem;
+}
+
+.article-meta{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  flex-wrap:wrap;
+  color:var(--muted);
+  font-size:.85rem;
+  margin-bottom:1rem;
+}
+
+.article-meta span{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+}
+
+.article-title{
+  font:700 clamp(2rem,5vw,3rem)/1.2 ui-serif,Georgia,serif;
+  color:var(--ink);
+  margin:0 0 .5rem 0;
+}
+
+.article-subtitle{
+  font:400 clamp(1.1rem,2vw,1.4rem)/1.4 ui-serif,Georgia,serif;
+  color:var(--accent);
+  font-style:italic;
+  margin:0 0 1.5rem 0;
+}
+
+.article-tags{
+  display:flex;
+  gap:.5rem;
+  flex-wrap:wrap;
+  margin-top:1rem;
+}
+
+.article-content{
+  grid-column:span 8;
+  background:var(--card);
+  border:1px solid var(--line);
+  padding:clamp(2rem,4vw,3rem);
+}
+
+.article-content p{
+  font-size:1.05rem;
+  line-height:1.8;
+  color:var(--ink);
+  margin:0 0 1.5rem 0;
+}
+
+.article-content p:first-of-type:first-letter{
+  font-size:3.5em;
+  line-height:1;
+  float:left;
+  margin:.1em .1em 0 0;
+  color:var(--accent);
+  font-family:ui-serif,Georgia,serif;
+}
+
+.article-sidebar{
+  grid-column:span 4;
+  height:fit-content;
+  position:sticky;
+  top:2rem;
+}
+
+.sidebar-section{
+  background:var(--card);
+  border:1px solid var(--line);
+  padding:1.5rem;
+  margin-bottom:1.5rem;
+}
+
+.sidebar-section h3{
+  font:600 .9rem ui-serif,Georgia,serif;
+  color:var(--accent);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  margin:0 0 1rem 0;
+  padding-bottom:.8rem;
+  border-bottom:1px solid var(--line);
+}
+
+.sidebar-info{
+  font-size:.9rem;
+  color:var(--muted);
+  line-height:1.8;
+}
+
+.sidebar-info strong{
+  color:var(--ink);
+  display:block;
+  margin-bottom:.3rem;
+}
+
+.related-posts{
+  grid-column:1/-1;
+  margin-top:4rem;
+  padding-top:3rem;
+  border-top:1px solid var(--line);
+}
+
+.related-posts h3{
+  font:600 1.5rem ui-serif,Georgia,serif;
+  color:var(--accent);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:2rem;
+}
+
+.related-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1.5rem;
+}
+
+.related-card{
+  background:var(--card);
+  border:1px solid var(--line);
+  padding:1.5rem;
+  text-decoration:none;
+  display:block;
+  transition:all .3s;
+}
+
+.related-card:hover{
+  border-color:var(--accent);
+  transform:translateY(-2px);
+}
+
+.related-card .meta{
+  font-size:.75rem;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  margin-bottom:.5rem;
+}
+
+.related-card .title{
+  font:600 1.1rem ui-serif,Georgia,serif;
+  color:var(--ink);
+  margin-bottom:.5rem;
+}
+
+.related-card .excerpt{
+  font-size:.85rem;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.back-button{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  padding:10px 20px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--ink);
+  text-decoration:none;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  font-size:.8rem;
+  transition:all .3s;
+  margin-bottom:2rem;
+}
+
+.back-button:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+.prompt-box{
+  background:#0a0d11;
+  border:1px solid var(--line);
+  padding:1rem;
+  margin-bottom:1rem;
+  max-height:300px;
+  overflow-y:auto;
+}
+
+.prompt-box pre{
+  margin:0;
+  font-family:ui-monospace,monospace;
+  font-size:.75rem;
+  line-height:1.5;
+  color:var(--ink);
+  white-space:pre-wrap;
+  word-wrap:break-word;
+}
+
+.copy-btn{
+  width:100%;
+  padding:10px;
+  background:transparent;
+  border:1px solid var(--accent);
+  color:var(--accent);
+  cursor:pointer;
+  font-size:.85rem;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  transition:all .3s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.5rem;
+}
+
+.copy-btn:hover{
+  background:var(--accent);
+  color:var(--bg);
+}
+
+.copy-icon{
+  font-size:1rem;
+}
+
+.upload-trigger-btn{
+  width:100%;
+  padding:10px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--ink);
+  cursor:pointer;
+  font-size:.85rem;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  transition:all .3s;
+}
+
+.upload-trigger-btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+
+@media (max-width: 900px){
+  .article-content,
+  .article-sidebar{
+    grid-column:1/-1;
+  }
+  .article-sidebar{
+    position:static;
+  }
+  .related-grid{
+    grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  }
+}
+
+@media (max-width: 640px){
+  .related-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+<body data-theme="brass">
+
+  <header>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="mark"></div>
+    <div>
+      <a href="/" style="text-decoration:none;color:inherit">
+        <div class="brand" style="font-weight:bold;font-size:1.5rem">TinyRisks</div>
+      </a>
+      <div style="font-weight:600;color:var(--ink);font-size:.9rem">Art Studio</div>
+    </div>
+  </div>
+  <nav style="font-size:1.3rem;font-weight:bold;text-align:center">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/#work">Work</a></li>
+      <li><a href="/gallery">Gallery</a></li>
+      <li><a href="/writing">Writing</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+  
+<div class="container">
+  <div class="grid">
+    <!-- Breadcrumb -->
+    <div class="detail-header">
+      <nav aria-label="breadcrumb">
+  <div class="breadcrumb">
+    
+      
+        <a href="/">Home</a>
+        <span>/</span>
+      
+    
+      
+        <a href="/writing.html">Writing</a>
+        <span>/</span>
+      
+    
+      
+        <span>Forest Factory</span>
+      
+    
+  </div>
+</nav>
+      <a href="/writing" class="back-button">
+        <span>←</span> Back to Writing
+      </a>
+    </div>
+
+    <!-- Article Hero -->
+    <header class="article-hero">
+      <div class="article-meta">
+        <span>TinyRisks</span>
+        <span>•</span>
+        <span>2025-09-01</span>
+        <span>•</span>
+        <span>3 min read</span>
+      </div>
+      <h1 class="article-title">Forest Factory</h1>
+      
+      <p class="article-subtitle">Former automotive plant, Detroit • 2045</p>
+      
+      <div class="article-tags">
+        
+        <span class="tag">World Building</span>
+        
+        <span class="tag">Speculative Architecture</span>
+        
+        <span class="tag">Nature × Cities</span>
+        
+      </div>
+    </header>
+
+    <!-- Article Content -->
+    <article class="article-content">
+      
+      <p>An industrial complex where trees grow through machinery, photosynthesis powering production lines</p>
+      
+      <p>**Site Location:** Former automotive plant, Detroit
+**Year:** 2045</p>
+      
+      <p>**Materials:**
+- Living wood
+- Rusted steel
+- Bio-glass
+</p>
+      
+    </article>
+
+    <!-- Sidebar -->
+    <aside class="article-sidebar">
+      
+      <!-- Image Prompt Section -->
+      <div class="sidebar-section">
+        <h3>Image Prompt</h3>
+        <div class="prompt-box">
+          <pre id="image-prompt">Forest Factory â€” hero still. A canopy-level production hub woven into living trees; grown-timber trusses joined by mycelium nodes; platforms suspended among broad leaves; solar membranes shimmering above; micro-hydro pipes hinted along a river axis; task lighting as small brass pinlines. Style: minimalist architectural concept art, noir night-on-charcoal palette with brass accents, thin-line drafting overlays, soft volumetric light, fogged depth, subtle film grain, 3:2 aspect, no people, no logos, clean grid background. Emphasize: living structure that strengthens with time; photosynthetic industry.</pre>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt()">
+          <span class="copy-icon">📋</span> Copy Prompt
+        </button>
+      </div>
+
+      <!-- Image Upload Section -->
+      
+      <div class="sidebar-section">
+        <h3>Hero Image</h3>
+        <img src="/static/uploads/writing/forest-factory.jpg" style="width:100%;border:1px solid var(--line)">
+      </div>
+      
+      
+
+      <div class="sidebar-section">
+        <h3>About This Post</h3>
+        <div class="sidebar-info">
+          <strong>Published</strong>
+          2025-09-01
+        </div>
+        <div class="sidebar-info" style="margin-top:1rem">
+          <strong>Reading Time</strong>
+          3 min read
+        </div>
+        <div class="sidebar-info" style="margin-top:1rem">
+          <strong>Topics</strong>
+          World Building, Speculative Architecture, Nature × Cities
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Share</h3>
+        <div class="sidebar-info">
+          <a href="#" style="color:var(--accent);text-decoration:none">Twitter</a> •
+          <a href="#" style="color:var(--accent);text-decoration:none">LinkedIn</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Related Posts -->
+    
+    <section class="related-posts">
+      <h3>More Writing</h3>
+      <div class="related-grid">
+        
+        <a href="/writing/lines-meet-light" class="related-card">
+          <div class="meta">2025-09-15</div>
+          <div class="title">Where Lines Meet Light</div>
+          <div class="excerpt">In the space between structure and dissolution, we find the essence of creation. A meditation on arc...</div>
+        </a>
+        
+        <a href="/writing/temporal-structures" class="related-card">
+          <div class="meta">2025-08-22</div>
+          <div class="title">Temporal Structures</div>
+          <div class="excerpt">What does it mean to create something meant to last? A reflection on time, impermanence, and the par...</div>
+        </a>
+        
+        <a href="/writing/sound-space" class="related-card">
+          <div class="meta">2025-07-10</div>
+          <div class="title">Sound & Space</div>
+          <div class="excerpt">How sound shapes our experience of space, and why every environment needs a soundtrack....</div>
+        </a>
+        
+      </div>
+    </section>
+    
+  </div>
+</div>
+
+
+  <footer>
+  <p>© <span id="year"></span> TinyRisks.art — Built with semantic HTML + simple CSS.</p>
+</footer>
+
+  <script src="./static/js/components.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function toggleTheme() {
+      const body = document.body;
+      const current = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', current === 'brass' ? 'cyan' : 'brass');
+    }
+
+    
+// Copy prompt to clipboard
+function copyPrompt() {
+  const promptText = document.getElementById('image-prompt').textContent;
+  navigator.clipboard.writeText(promptText).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<span class="copy-icon">✓</span> Copied!';
+    btn.style.background = 'var(--success)';
+    btn.style.borderColor = 'var(--success)';
+    btn.style.color = '#fff';
+
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.style.background = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 2000);
+  }).catch(err => {
+    alert('Failed to copy prompt');
+    console.error('Copy failed:', err);
+  });
+}
+
+// Image upload preview
+document.getElementById('hero-image-input')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      document.getElementById('preview-img').src = event.target.result;
+      document.getElementById('upload-preview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// Image upload form submission
+document.getElementById('image-upload-form')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('hero-image-input');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please select an image first');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('image', file);
+  formData.append('slug', 'forest-factory');
+
+  const statusDiv = document.getElementById('upload-status');
+  statusDiv.innerHTML = '<span style="color:var(--accent)">Uploading...</span>';
+
+  try {
+    const response = await fetch('/admin/writing/upload-image', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      statusDiv.innerHTML = '<span style="color:var(--success)">✓ Upload successful! Refreshing...</span>';
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      statusDiv.innerHTML = '<span style="color:var(--error)">✗ ' + (result.error || 'Upload failed') + '</span>';
+    }
+  } catch (error) {
+    statusDiv.innerHTML = '<span style="color:var(--error)">✗ Upload failed: ' + error.message + '</span>';
+  }
+});
+
+  </script>
+</body>
+</html>

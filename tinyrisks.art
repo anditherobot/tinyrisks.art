@@ -1,0 +1,44 @@
+
+# WebinolySSLredirectStart - HTTP to HTTPS Redirect
+server {
+	listen 80;
+	listen [::]:80;
+	server_name tinyrisks.art www.tinyrisks.art;
+	return 301 https://$host$request_uri;
+}
+# WebinolySSLredirectEnd
+# WebinolyNginxServerStart
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+	listen [::]:443 quic;
+	listen 443 quic;
+
+	server_name tinyrisks.art www.tinyrisks.art;
+
+	# WebinolySSLstart
+	ssl_certificate /etc/letsencrypt/live/tinyrisks.art/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/tinyrisks.art/privkey.pem;
+	ssl_stapling on;
+	ssl_stapling_verify on;
+	ssl_trusted_certificate /etc/letsencrypt/live/tinyrisks.art/chain.pem;
+	# WebinolySSLend	
+	access_log off;
+	error_log /var/log/nginx/tinyrisks.art.error.log;
+	
+	root /var/www/tinyrisks.art/htdocs;
+		
+	index index.php index.html index.htm;
+	
+	include common/auth.conf;
+	
+	# WebinolyCustom
+	# WebinolyCustomEnd
+	
+	include common/phpx.conf;
+	include common/locations.conf;
+	include common/headers.conf;
+	include /var/www/tinyrisks.art/*-nginx.conf;
+	include /etc/nginx/conf.d/*.conf.srv;
+}
+# WebinolyNginxServerEnd

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Poseidon — Greek Gods Series</title>
+  <link rel="stylesheet" href="./static/css/base.css">
+  <style>
+/* Poseidon-specific styles */
+.meta{color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:.1em}
+</style>
+</head>
+<body data-theme="brass">
+
+  <header>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="mark"></div>
+    <div>
+      <a href="/" style="text-decoration:none;color:inherit">
+        <div class="brand" style="font-weight:bold;font-size:1.5rem">TinyRisks</div>
+      </a>
+      <div style="font-weight:600;color:var(--ink);font-size:.9rem">Art Studio</div>
+    </div>
+  </div>
+  <nav style="font-size:1.3rem;font-weight:bold;text-align:center">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/#work">Work</a></li>
+      <li><a href="/gallery">Gallery</a></li>
+      <li><a href="/writing">Writing</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+  
+<div class="container">
+  <div class="grid">
+    <div id="poseidon-content" style="grid-column:1/-1">
+      <!-- Content rendered dynamically -->
+    </div>
+  </div>
+</div>
+
+
+  <footer>
+  <p>© <span id="year"></span> TinyRisks.art — Built with semantic HTML + simple CSS.</p>
+</footer>
+
+  <script src="./static/js/components.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function toggleTheme() {
+      const body = document.body;
+      const current = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', current === 'brass' ? 'cyan' : 'brass');
+    }
+
+    
+// Poseidon page data
+const poseidonData = {
+  meta: 'Greek Gods Series • 001',
+  title: 'Poseidon — God of Sea, Earthquakes, and Horses',
+  image: './static/assets/images/pozeidon.png',
+  imageAlt: 'Poseidon scene in turbulent sea with figures and foam',
+  imageCaption: 'Plate I — Poseidon. A study in structure within chaos—grids bend like waves, brass lines become tridents.',
+  tags: ['poseidon', 'palette', 'procreate', 'brushes', 'greek gods'],
+  content: `
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:32px;margin-top:2rem">
+      <div style="line-height:1.8;color:var(--muted)">
+        <p style="margin:0 0 1.2rem">In our studio treatment, Poseidon is not merely a storm—he is the measure of structure within chaos. Grids bend like waves; brass lines become tridents; cyan glow edges trace the seam between depth and daylight.</p>
+
+        <p style="margin:0 0 1.2rem">This collection explores the duality of order and turbulence through a palette of deep teals, sea greens, foam whites, and bronze accents. Each brush stroke carries the weight of tidal motion, each texture echoes wet stone and salt patina.</p>
+
+        <blockquote style="border-left:3px solid var(--accent);padding-left:1.5rem;margin:1.5rem 0;font-style:italic;color:var(--ink)">
+          Minimalism isn't absence—it's precision. The line is the idea; the light is the argument.
+        </blockquote>
+      </div>
+
+      <aside style="background:var(--card);border:1px solid var(--line);padding:clamp(20px,3vw,32px);height:fit-content">
+        <span class="meta">Spec Sheet</span>
+        <h3 style="font:600 1.3rem ui-serif,Georgia,serif;color:var(--ink);margin:.4rem 0 1rem">Poseidon Kit</h3>
+        <ul class="meta" style="line-height:1.9;margin:1rem 0;padding-left:20px;color:var(--muted)">
+          <li>Palette: deep teal, sea green, foam white, bronze</li>
+          <li>Brushes: foam scatter, brine grain, trident chisel</li>
+          <li>Textures: salt patina, wet stone, rope fiber</li>
+          <li>Format: Procreate 5+ • 4K canvases</li>
+          <li>Layers: 12 swatches, 8 custom brushes</li>
+        </ul>
+        <div style="height:1px;background:var(--line);margin:1.5rem 0"></div>
+        <p class="meta" style="line-height:1.6">Toggle brass/cyan for maritime glow aesthetic.</p>
+      </aside>
+    </div>
+    <a class="btn" href="/#work" style="margin-top:2rem">← Back to Work</a>
+  `
+};
+
+// Render Poseidon content
+const container = document.getElementById('poseidon-content');
+if (container) {
+  container.innerHTML = `
+    <article class="work-card" style="grid-column:span 12">
+      <figure style="margin:0 0 16px;border:1px solid var(--line);background:var(--card);overflow:hidden">
+        <img src="${poseidonData.image}" alt="${poseidonData.imageAlt}" style="display:block;width:100%;height:auto" />
+        <figcaption style="padding:12px 14px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line);font-style:italic">
+          ${poseidonData.imageCaption}
+        </figcaption>
+      </figure>
+
+      <div class="work-meta">${poseidonData.meta}</div>
+      <h1 style="font:700 clamp(2rem,5vw,3rem)/1.2 ui-serif,Georgia,serif;margin:.5rem 0 1rem;color:var(--accent)">${poseidonData.title}</h1>
+
+      ${poseidonData.content}
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:1.5rem">
+        ${poseidonData.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+      </div>
+    </article>
+  `;
+}
+
+  </script>
+</body>
+</html>

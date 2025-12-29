@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Writing</title>
+  <link rel="stylesheet" href="./static/css/base.css">
+  <style>
+/* Hero - Split layout */
+.hero{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  min-height:50vh;
+  margin:0 0 4rem;
+  border:1px solid var(--line);
+}
+.hero-image{
+  position:relative;
+  background:
+    radial-gradient(600px 400px at 70% 50%, rgba(214,167,108,.12), transparent 70%),
+    linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.4)),
+    var(--bg);
+  background-image: url('./static/assets/images/cover.png');
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: screen, multiply, normal;
+  border-right:1px solid var(--line);
+}
+.hero-content{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:clamp(2rem,6vw,4rem);
+  background:linear-gradient(180deg, var(--card), #0e1219);
+}
+.kicker{color:var(--accent);text-transform:uppercase;letter-spacing:.25em;font-size:.85rem;margin-bottom:1rem;font-weight:600}
+.hero h1{font:700 clamp(2rem,5vw,3.5rem)/1.1 ui-serif,Georgia,serif;margin:0 0 1.5rem;color:var(--ink)}
+.hero .poem{
+  font:300 clamp(1.1rem,2vw,1.4rem)/1.8 ui-serif,Georgia,serif;
+  color:var(--muted);
+  font-style:italic;
+  margin:2rem 0;
+  padding-left:1.5rem;
+  border-left:2px solid var(--accent);
+}
+.hero .poem p{margin:.5rem 0}
+
+.work-card{grid-column:span 12!important}
+.loading,.error{color:var(--muted);font-style:italic}
+
+.filter-btn{
+  display:inline-block;
+  padding:10px 24px;
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--muted);
+  text-decoration:none;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  font-size:.8rem;
+  transition:all .3s;
+}
+.filter-btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.filter-btn.active{
+  background:var(--accent);
+  color:var(--bg);
+  border-color:var(--accent);
+}
+
+@media (max-width: 900px){
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-image{min-height:50vh;border-right:none;border-bottom:1px solid var(--line)}
+}
+</style>
+</head>
+<body data-theme="brass">
+
+  <header>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="mark"></div>
+    <div>
+      <a href="/" style="text-decoration:none;color:inherit">
+        <div class="brand" style="font-weight:bold;font-size:1.5rem">TinyRisks</div>
+      </a>
+      <div style="font-weight:600;color:var(--ink);font-size:.9rem">Art Studio</div>
+    </div>
+  </div>
+  <nav style="font-size:1.3rem;font-weight:bold;text-align:center">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/#work">Work</a></li>
+      <li><a href="/gallery">Gallery</a></li>
+      <li><a href="/writing">Writing</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+  
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-image" ></div>
+  <div class="hero-content">
+    <div class="kicker">Writing</div>
+    <h1>Thoughts & Verses</h1>
+    <div class="poem">
+      
+      <p>Que rien ne nous dérive</p>
+      
+      <p>Vers les biens temporels,</p>
+      
+      <p>Leur paix est fugitive;</p>
+      
+      <p>Ne cherchons qu'une rive;</p>
+      
+    </div>
+    
+    <a href="#posts" class="cta">Explore Writing</a>
+    
+  </div>
+</section>
+
+<div class="container">
+  <!-- Category Filter -->
+  <div class="grid">
+    <div style="grid-column:1/-1;margin-bottom:2rem">
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+        <a href="/writing" class="filter-btn active">All</a>
+        <a href="/writing?category=World Building" class="filter-btn ">World Building</a>
+        <a href="/writing?category=Essays" class="filter-btn ">Essays</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Writing Section -->
+  <div class="grid" id="posts">
+    <h2 class="section-title">All Posts</h2>
+
+    
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-15 • 4 min read</div>
+        <h3><a href="/writing/lines-meet-light" style="text-decoration:none;color:inherit">Where Lines Meet Light</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">On the intersection of form and void</p>
+        
+        <p>In the space between structure and dissolution, we find the essence of creation. A meditation on architectural thinking and the ephemeral nature of design.</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">Architecture</span>
+          
+          <span class="tag">Philosophy</span>
+          
+          <span class="tag">Design</span>
+          
+        </div>
+        <a href="/writing/lines-meet-light" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-08-22 • 3 min read</div>
+        <h3><a href="/writing/temporal-structures" style="text-decoration:none;color:inherit">Temporal Structures</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Building for the moment, designing for eternity</p>
+        
+        <p>What does it mean to create something meant to last? A reflection on time, impermanence, and the paradox of permanent architecture.</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">Philosophy</span>
+          
+          <span class="tag">Time</span>
+          
+          <span class="tag">Impermanence</span>
+          
+        </div>
+        <a href="/writing/temporal-structures" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-07-10 • 5 min read</div>
+        <h3><a href="/writing/sound-space" style="text-decoration:none;color:inherit">Sound & Space</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">The architecture of acoustics</p>
+        
+        <p>How sound shapes our experience of space, and why every environment needs a soundtrack.</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">Sound Design</span>
+          
+          <span class="tag">Architecture</span>
+          
+          <span class="tag">Experience</span>
+          
+        </div>
+        <a href="/writing/sound-space" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/forest-factory" style="text-decoration:none;color:inherit">Forest Factory</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Former automotive plant, Detroit • 2045</p>
+        
+        <p>An industrial complex where trees grow through machinery, photosynthesis powering production lines</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/forest-factory" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/tidal-tower" style="text-decoration:none;color:inherit">Tidal Tower</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Tokyo Bay extension • 2048</p>
+        
+        <p>A vertical structure that breathes with ocean waves, floors rising and falling with lunar cycles</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/tidal-tower" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/mycelium-metro" style="text-decoration:none;color:inherit">Mycelium Metro</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Beneath Portland downtown • 2051</p>
+        
+        <p>Underground transit system grown from fungal networks, trains gliding on spore-lit tracks</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/mycelium-metro" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/wind-village" style="text-decoration:none;color:inherit">Wind Village</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Gobi Desert seasonal routes • 2046</p>
+        
+        <p>Nomadic settlement of sail-homes that migrate across desert plains following seasonal winds</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/wind-village" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/ice-archive" style="text-decoration:none;color:inherit">Ice Archive</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Greenland ice sheet interior • 2050</p>
+        
+        <p>Library carved into glacier, knowledge preserved in frozen chambers that shift with ice flow</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/ice-archive" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/swamp-cathedral" style="text-decoration:none;color:inherit">Swamp Cathedral</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Louisiana bayou • 2047</p>
+        
+        <p>Spiritual space built on cypress roots, water level determining which chambers are accessible</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/swamp-cathedral" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/cloud-farm" style="text-decoration:none;color:inherit">Cloud Farm</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Above San Francisco fog belt • 2049</p>
+        
+        <p>Agricultural platforms tethered at 10,000 feet, fog-harvesting fields suspended in mist layers</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/cloud-farm" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/lava-foundry" style="text-decoration:none;color:inherit">Lava Foundry</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Mount Etna slopes • 2052</p>
+        
+        <p>Metalworking complex perched on active volcano, geothermal heat directly smelting ore</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/lava-foundry" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/coral-courthouse" style="text-decoration:none;color:inherit">Coral Courthouse</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Great Barrier Reef legal zone • 2053</p>
+        
+        <p>Underwater judicial center where sessions occur in diving chambers, coral reefs as witness galleries</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/coral-courthouse" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+      <article class="work-card">
+        <div class="work-meta">2025-09-01 • 3 min read</div>
+        <h3><a href="/writing/storm-observatory" style="text-decoration:none;color:inherit">Storm Observatory</a></h3>
+        
+        <p style="color:var(--accent);font-size:.9rem;margin:.5rem 0;font-style:italic">Mobile Gulf Coast deployment • 2054</p>
+        
+        <p>Research station that chases hurricanes, rotating walls channeling wind into energy and data capture</p>
+        <div style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          
+          <span class="tag">World Building</span>
+          
+          <span class="tag">Speculative Architecture</span>
+          
+          <span class="tag">Nature × Cities</span>
+          
+        </div>
+        <a href="/writing/storm-observatory" class="btn" style="margin-top:1.5rem">Read More</a>
+      </article>
+      
+    
+  </div>
+</div>
+
+
+  <footer>
+  <p>© <span id="year"></span> TinyRisks.art — Built with semantic HTML + simple CSS.</p>
+</footer>
+
+  <script src="./static/js/components.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function toggleTheme() {
+      const body = document.body;
+      const current = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', current === 'brass' ? 'cyan' : 'brass');
+    }
+
+    
+  </script>
+</body>
+</html>

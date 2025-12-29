@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gallery</title>
+  <link rel="stylesheet" href="./static/css/base.css">
+  <style>
+:root {
+  --grid-gap: clamp(12px, 2vw, 24px);
+}
+
+.gallery-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--grid-gap);
+}
+</style>
+</head>
+<body data-theme="brass">
+
+  <header>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="mark"></div>
+    <div>
+      <a href="/" style="text-decoration:none;color:inherit">
+        <div class="brand" style="font-weight:bold;font-size:1.5rem">TinyRisks</div>
+      </a>
+      <div style="font-weight:600;color:var(--ink);font-size:.9rem">Art Studio</div>
+    </div>
+  </div>
+  <nav style="font-size:1.3rem;font-weight:bold;text-align:center">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/#work">Work</a></li>
+      <li><a href="/gallery">Gallery</a></li>
+      <li><a href="/writing">Writing</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+  
+<div class="container">
+  <div class="grid">
+    
+      <h2 class="section-title">Photo Gallery</h2>
+    
+
+    <div class="gallery-grid">
+      
+      <p style="grid-column: 1 / -1; color: var(--muted); text-align: center; padding: 4rem;">There are no photo albums to display yet.</p>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen Viewer HTML -->
+<div id="fullscreen-viewer" class="fullscreen-viewer">
+  <div id="fullscreen-close" class="fullscreen-close" title="Close (Esc)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  </div>
+  <div id="fullscreen-prev" class="fullscreen-nav prev" title="Previous (←)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  </div>
+  <div class="fullscreen-image-container">
+    <img id="fullscreen-image" src="" alt="Fullscreen image">
+  </div>
+  <div id="fullscreen-next" class="fullscreen-nav next" title="Next (→)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  </div>
+  <div id="fullscreen-counter" class="fullscreen-counter">1 / 1</div>
+</div>
+
+
+  <footer>
+  <p>© <span id="year"></span> TinyRisks.art — Built with semantic HTML + simple CSS.</p>
+</footer>
+
+  <script src="./static/js/components.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function toggleTheme() {
+      const body = document.body;
+      const current = body.getAttribute('data-theme');
+      body.setAttribute('data-theme', current === 'brass' ? 'cyan' : 'brass');
+    }
+
+    
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const viewer = document.getElementById('fullscreen-viewer');
+  const imageElement = document.getElementById('fullscreen-image');
+  const counterElement = document.getElementById('fullscreen-counter');
+  const closeBtn = document.getElementById('fullscreen-close');
+  const prevBtn = document.getElementById('fullscreen-prev');
+  const nextBtn = document.getElementById('fullscreen-next');
+
+  let currentAlbumImages = [];
+  let currentIndex = 0;
+
+  document.querySelectorAll('.album-card').forEach(card => {
+    card.addEventListener('click', e => {
+      e.preventDefault();
+      const images = JSON.parse(card.dataset.images);
+      if (images && images.length > 0) {
+        currentAlbumImages = images;
+        currentIndex = 0;
+        updateImageViewer();
+        viewer.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  });
+
+  function updateImageViewer() {
+    const imageName = currentAlbumImages[currentIndex];
+    imageElement.src = `./static/uploads/images/${imageName}`;
+    counterElement.textContent = `${currentIndex + 1} / ${currentAlbumImages.length}`;
+    prevBtn.style.display = currentIndex === 0 ? 'none' : 'grid';
+    nextBtn.style.display = currentIndex === currentAlbumImages.length - 1 ? 'none' : 'grid';
+  }
+
+  function closeViewer() {
+    viewer.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  function showNextImage() {
+    if (currentIndex < currentAlbumImages.length - 1) {
+      currentIndex++;
+      updateImageViewer();
+    }
+  }
+
+  function showPrevImage() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateImageViewer();
+    }
+  }
+
+  closeBtn.addEventListener('click', closeViewer);
+  nextBtn.addEventListener('click', showNextImage);
+  prevBtn.addEventListener('click', showPrevImage);
+
+  document.addEventListener('keydown', e => {
+    if (viewer.classList.contains('active')) {
+      if (e.key === 'Escape') closeViewer();
+      if (e.key === 'ArrowRight') showNextImage();
+      if (e.key === 'ArrowLeft') showPrevImage();
+    }
+  });
+});
+</script>
+
+  </script>
+</body>
+</html>
