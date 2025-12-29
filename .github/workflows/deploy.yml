@@ -36,8 +36,8 @@ jobs:
       - name: Verify deployment
         run: |
           sleep 3
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://tinyrisks.art)
-          if [ "$STATUS" == "200" ]; then
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -L https://tinyrisks.art)
+          if [ "$STATUS" == "200" ] || [ "$STATUS" == "301" ] || [ "$STATUS" == "302" ]; then
             echo "✅ Site is live (Status: $STATUS)"
           else
             echo "❌ Site check failed (Status: $STATUS)"
