@@ -3,7 +3,7 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
@@ -28,7 +28,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'EOF'
             cd ${{ secrets.REMOTE_PATH }}
-            git pull origin main
+            git pull origin master
             sudo systemctl restart tinyrisks
             echo "✅ Deployment completed successfully!"
           EOF

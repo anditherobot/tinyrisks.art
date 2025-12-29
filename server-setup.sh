@@ -2,7 +2,7 @@
 # Run this script on your server to set up GitHub deployment
 
 REMOTE_PATH="/var/www/tinyrisks.art"
-REPO_URL="https://github.com/YOUR_USERNAME/tinyrisks.art.git"  # Will be updated
+REPO_URL="https://github.com/anditherobot/tinyrisks.art.git"
 
 echo "🔧 Setting up GitHub deployment on server..."
 
