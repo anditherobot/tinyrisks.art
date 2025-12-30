@@ -1,7 +1,7 @@
 import sqlite3
-import hashlib
 import os
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 DATABASE_PATH = 'tinyrisks.db'
 
@@ -42,7 +42,7 @@ def init_db():
     
     # Seed default user: captain/bateau
     try:
-        password_hash = hashlib.sha256('bateau'.encode()).hexdigest()
+        password_hash = generate_password_hash('bateau')
         cursor.execute(
             'INSERT INTO users (username, password_hash) VALUES (?, ?)',
             ('captain', password_hash)
@@ -60,16 +60,15 @@ def verify_user(username, password):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
     cursor.execute(
-        'SELECT id, username FROM users WHERE username = ? AND password_hash = ?',
-        (username, password_hash)
+        'SELECT id, username, password_hash FROM users WHERE username = ?',
+        (username,)
     )
     
     user_data = cursor.fetchone()
     conn.close()
     
-    if user_data:
+    if user_data and check_password_hash(user_data['password_hash'], password):
         return User(id=user_data['id'], username=user_data['username'])
     return None
 

@@ -7,7 +7,16 @@ from models import init_db, verify_user, get_user_by_id, save_image_metadata, ge
 
 # Configure app to serve static files from htdocs
 app = Flask(__name__, static_folder='htdocs')
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Secret key configuration
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    # Generate a random secret key for development
+    import secrets
+    SECRET_KEY = secrets.token_hex(32)
+    print("⚠️  WARNING: Using auto-generated SECRET_KEY. Set SECRET_KEY environment variable in production!")
+
+app.config['SECRET_KEY'] = SECRET_KEY
 
 # Initialize Flask-Login
 login_manager = LoginManager()
