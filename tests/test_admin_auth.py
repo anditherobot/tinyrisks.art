@@ -12,10 +12,9 @@ class TestAdminPanelAccess:
         """Test that admin.js file is accessible."""
         response = client.get('/static/admin/admin.js')
         assert response.status_code == 200
-        # Verify it's JavaScript
-        assert b'Admin Panel JavaScript' in response.data or \
-               b'function' in response.data or \
-               b'admin' in response.data.lower()
+        # Verify it contains expected admin functionality
+        assert b'initSnippetManager' in response.data
+        assert b'initWorldBuildingFeatures' in response.data
     
     def test_admin_js_contains_snippet_manager(self, client):
         """Test that admin.js contains snippet management functionality."""

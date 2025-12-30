@@ -4,6 +4,7 @@ Tests the /api/upload and /api/images endpoints.
 """
 import io
 import os
+import time
 import pytest
 from werkzeug.datastructures import FileStorage
 
@@ -264,8 +265,6 @@ class TestImageListing:
     
     def test_list_images_sorted_by_newest(self, client, app):
         """Test that images are sorted by newest first."""
-        import time
-        
         # Upload images with slight delay
         for i in range(3):
             data = {

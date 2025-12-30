@@ -4,6 +4,7 @@ import pytest
 import tempfile
 
 # Add the parent directory to the path so we can import app
+# This is a common pattern for test discovery in Flask applications
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app as flask_app
