@@ -29,6 +29,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'EOF'
             cd ${{ secrets.REMOTE_PATH }}
             git pull origin master
+            sudo chown -R www-data:www-data htdocs/
             sudo systemctl reload nginx
             echo "✅ Deployment completed successfully!"
           EOF
