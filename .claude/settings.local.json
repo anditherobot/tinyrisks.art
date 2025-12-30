@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash:*)"
+      "Bash(bash:*)",
+      "Bash(gh run view:*)",
+      "Bash(ssh -i ~/.ssh/id_rsa ubuntu@anditherobot.com:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(pytest:*)"
     ]
   }
 }
