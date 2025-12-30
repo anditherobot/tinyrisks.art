@@ -14,7 +14,7 @@ if not SECRET_KEY:
     # Generate a random secret key for development
     import secrets
     SECRET_KEY = secrets.token_hex(32)
-    print("⚠️  WARNING: Using auto-generated SECRET_KEY. Set SECRET_KEY environment variable in production!")
+    print("WARNING: Using auto-generated SECRET_KEY. Set SECRET_KEY environment variable in production!")
 
 app.config['SECRET_KEY'] = SECRET_KEY
 

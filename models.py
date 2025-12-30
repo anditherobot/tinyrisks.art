@@ -50,10 +50,10 @@ def init_db():
             ('captain', password_hash)
         )
         conn.commit()
-        print("✓ Database initialized and default user 'captain' created")
+        print("Database initialized and default user 'captain' created")
     except sqlite3.IntegrityError:
         # User already exists
-        print("✓ Database already initialized")
+        print("Database already initialized")
     
     conn.close()
 
