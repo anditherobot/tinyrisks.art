@@ -56,12 +56,16 @@ def api_login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    
+
+    # Validate required fields
+    if not username or not password:
+        return jsonify({'success': False, 'error': 'Username and password are required'}), 400
+
     user = verify_user(username, password)
     if user:
         login_user(user)
         return jsonify({'success': True, 'redirect': '/admin'})
-    
+
     return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
 
 @app.route('/api/logout', methods=['POST'])

@@ -41,8 +41,9 @@ class TestBasicRoutes:
         response = client.post('/api/upload',
                               data=data,
                               content_type='multipart/form-data')
-        # Should get 200 (success) not 404 (route not found)
-        assert response.status_code == 200
+        # Should get 200 (success) or 302 (redirect to login), not 404 (route not found)
+        # Upload now requires authentication, so 302 is expected for unauthenticated requests
+        assert response.status_code in [200, 302]
     
     def test_api_images_route_exists(self, client):
         """Test that images API route exists."""
