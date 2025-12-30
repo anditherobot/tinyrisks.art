@@ -97,19 +97,6 @@
   <div class="grid" id="community">
     <h2 class="section-title">Community Gallery</h2>
     
-    <!-- Upload Form -->
-    <div class="contact-form" style="grid-column: span 12; margin-bottom: 2rem;">
-      <h4 style="color:var(--accent);margin-top:0;text-transform:uppercase;letter-spacing:.12em">Share Your Vision</h4>
-      <form id="imageUploadForm" style="display:grid;gap:1rem;grid-template-columns:1fr auto;align-items:end;">
-          <div style="flex-grow:1">
-              <label for="imageInput">Select Image</label>
-              <input type="file" id="imageInput" name="image" accept="image/*" required style="margin-bottom:0">
-          </div>
-          <button type="submit" id="uploadBtn" style="height:50px;white-space:nowrap;padding:0 32px">Upload</button>
-      </form>
-      <div id="uploadStatus" style="margin-top:1rem;font-size:0.9rem"></div>
-    </div>
-
     <!-- Image Grid -->
     <div id="community-grid" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));gap:clamp(12px,2vw,24px)">
         <!-- Images will be loaded here -->
@@ -147,8 +134,6 @@
     }
 
     // Image Upload & Gallery Logic
-    const uploadForm = document.getElementById('imageUploadForm');
-    const uploadStatus = document.getElementById('uploadStatus');
     const communityGrid = document.getElementById('community-grid');
 
     async function loadImages() {
@@ -170,46 +155,8 @@
         }
     }
 
-    if(uploadForm) {
-        uploadForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(uploadForm);
-            const btn = document.getElementById('uploadBtn');
-            const originalText = btn.textContent;
-            
-            btn.textContent = 'Uploading...';
-            btn.disabled = true;
-            uploadStatus.textContent = '';
-            uploadStatus.className = '';
-
-            try {
-                // Python/Flask Endpoint
-                const res = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-                
-                if (res.ok && !data.error) {
-                    uploadStatus.textContent = 'Success! Image added.';
-                    uploadStatus.style.color = 'var(--success)';
-                    uploadForm.reset();
-                    loadImages(); // Refresh grid
-                } else {
-                    throw new Error(data.error || 'Upload failed');
-                }
-            } catch (err) {
-                uploadStatus.textContent = err.message;
-                uploadStatus.style.color = 'var(--error)';
-            } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        });
-
-        // Initial load
-        loadImages();
-    }
+    // Initial load
+    loadImages();
 
   </script>
 </body>
