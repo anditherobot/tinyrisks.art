@@ -113,7 +113,7 @@
   <div class="login-container">
     <h2 style="text-align: center; color: var(--accent); margin-top: 0;">Admin Login</h2>
     
-    <form id="loginForm" class="login-form">
+    <form id="loginForm" class="login-form" aria-describedby="errorMessage">
       <div class="form-group">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required autofocus>
@@ -126,7 +126,7 @@
       
       <button type="submit" class="login-btn" id="loginBtn">Login</button>
       
-      <div id="errorMessage" class="error-message" style="display: none;"></div>
+      <div id="errorMessage" class="error-message" style="display: none;" role="alert" aria-live="polite"></div>
     </form>
     
     <div class="back-link">
