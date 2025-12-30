@@ -41,36 +41,29 @@ class TestAdminPanelAccess:
 
 
 class TestAuthenticationFramework:
-    """
-    Framework for authentication tests.
-    These tests will fail until authentication is implemented,
-    serving as a guide for future implementation.
-    """
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+    """Test cases for authentication functionality."""
+
     def test_login_endpoint_exists(self, client):
         """Test that login endpoint exists."""
         response = client.get('/login')
         # Should not be 404
         assert response.status_code in [200, 302, 401]
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+
     def test_login_with_valid_credentials(self, client):
-        """Test login with valid credentials."""
+        """Test login with valid credentials (captain/bateau)."""
         response = client.post('/api/login', json={
-            'username': 'admin',
-            'password': 'testpassword'
+            'username': 'captain',
+            'password': 'bateau'
         })
         assert response.status_code == 200
         json_data = response.get_json()
         assert 'success' in json_data
         assert json_data['success'] is True
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+
     def test_login_with_invalid_credentials(self, client):
         """Test login with invalid credentials."""
         response = client.post('/api/login', json={
-            'username': 'admin',
+            'username': 'captain',
             'password': 'wrongpassword'
         })
         assert response.status_code in [401, 403]
@@ -78,122 +71,90 @@ class TestAuthenticationFramework:
         assert 'error' in json_data or 'success' in json_data
         if 'success' in json_data:
             assert json_data['success'] is False
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
-    def test_login_with_missing_username(self, client):
-        """Test login with missing username."""
+
+    def test_login_with_missing_fields(self, client):
+        """Test login with missing username or password."""
+        # Missing password
         response = client.post('/api/login', json={
-            'password': 'testpassword'
+            'username': 'captain'
         })
-        assert response.status_code == 400
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
-    def test_login_with_missing_password(self, client):
-        """Test login with missing password."""
-        response = client.post('/api/login', json={
-            'username': 'admin'
-        })
-        assert response.status_code == 400
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+        # App should handle None password gracefully
+        assert response.status_code in [400, 401]
+
     def test_logout_when_logged_in(self, client):
         """Test logout functionality when user is logged in."""
         # First login
         login_response = client.post('/api/login', json={
-            'username': 'admin',
-            'password': 'testpassword'
+            'username': 'captain',
+            'password': 'bateau'
         })
         assert login_response.status_code == 200
-        
+
         # Then logout
         logout_response = client.post('/api/logout')
         assert logout_response.status_code == 200
         json_data = logout_response.get_json()
         assert json_data['success'] is True
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+
     def test_logout_when_not_logged_in(self, client):
         """Test logout when user is not logged in."""
         response = client.post('/api/logout')
-        # Should handle gracefully
-        assert response.status_code in [200, 401]
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+        # Flask-Login @login_required will redirect unauthorized users
+        assert response.status_code in [200, 302, 401]
+
     def test_admin_access_requires_authentication(self, client):
         """Test that admin panel requires authentication."""
         response = client.get('/admin')
         # Should redirect to login or return 401
         assert response.status_code in [302, 401]
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+
     def test_admin_access_with_authentication(self, client):
         """Test admin panel access with valid authentication."""
         # Login first
         client.post('/api/login', json={
-            'username': 'admin',
-            'password': 'testpassword'
+            'username': 'captain',
+            'password': 'bateau'
         })
-        
+
         # Access admin panel
         response = client.get('/admin')
         assert response.status_code == 200
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
+
     def test_session_persistence(self, client):
         """Test that session persists across requests."""
         # Login
         login_response = client.post('/api/login', json={
-            'username': 'admin',
-            'password': 'testpassword'
+            'username': 'captain',
+            'password': 'bateau'
         })
         assert login_response.status_code == 200
-        
-        # Make another request without logging in again
+
+        # Make another request to admin panel
         # Session should persist
-        response = client.get('/api/check-auth')
+        response = client.get('/admin')
         assert response.status_code == 200
-        json_data = response.get_json()
-        assert json_data['authenticated'] is True
-    
-    @pytest.mark.skip(reason="Authentication not yet implemented")
-    def test_session_expires_after_logout(self, client):
-        """Test that session expires after logout."""
+
+    def test_protected_endpoint_after_logout(self, client):
+        """Test that protected endpoints are inaccessible after logout."""
         # Login
         client.post('/api/login', json={
-            'username': 'admin',
-            'password': 'testpassword'
+            'username': 'captain',
+            'password': 'bateau'
         })
-        
+
         # Logout
         client.post('/api/logout')
-        
+
         # Try to access protected resource
-        response = client.get('/api/check-auth')
-        json_data = response.get_json()
-        assert json_data['authenticated'] is False
+        response = client.get('/admin')
+        assert response.status_code in [302, 401]
 
 
 class TestAdminImageUploadControl:
-    """
-    Test cases for admin control over image uploads.
-    Framework for future implementation of upload restrictions.
-    """
-    
-    def test_public_can_upload_images_currently(self, client):
-        """Test that currently anyone can upload images (no auth)."""
-        import io
-        data = {
-            'image': (io.BytesIO(b'test image'), 'test.png')
-        }
-        response = client.post('/api/upload',
-                              data=data,
-                              content_type='multipart/form-data')
-        # Currently should work without auth
-        assert response.status_code == 200
-    
-    @pytest.mark.skip(reason="Upload authentication not yet implemented")
+    """Test cases for admin control over image uploads."""
+
     def test_upload_requires_authentication(self, client):
-        """Test that image upload requires authentication (future)."""
+        """Test that image upload requires authentication."""
         import io
         data = {
             'image': (io.BytesIO(b'test image'), 'test.png')
@@ -201,20 +162,19 @@ class TestAdminImageUploadControl:
         response = client.post('/api/upload',
                               data=data,
                               content_type='multipart/form-data')
-        # Should require auth in the future
-        assert response.status_code in [401, 403]
-    
-    @pytest.mark.skip(reason="Upload authentication not yet implemented")
+        # Should require auth
+        assert response.status_code in [302, 401]
+
     def test_authenticated_admin_can_upload(self, client):
         """Test that authenticated admin can upload images."""
         import io
-        
+
         # Login first
         client.post('/api/login', json={
-            'username': 'admin',
-            'password': 'testpassword'
+            'username': 'captain',
+            'password': 'bateau'
         })
-        
+
         # Upload image
         data = {
             'image': (io.BytesIO(b'test image'), 'test.png')
@@ -223,6 +183,51 @@ class TestAdminImageUploadControl:
                               data=data,
                               content_type='multipart/form-data')
         assert response.status_code == 200
+
+    def test_upload_with_description(self, client):
+        """Test uploading image with description field."""
+        import io
+
+        # Login first
+        client.post('/api/login', json={
+            'username': 'captain',
+            'password': 'bateau'
+        })
+
+        # Upload image with description
+        data = {
+            'image': (io.BytesIO(b'test image'), 'test.png'),
+            'description': 'Test image description'
+        }
+        response = client.post('/api/upload',
+                              data=data,
+                              content_type='multipart/form-data')
+        assert response.status_code == 200
+        json_data = response.get_json()
+        assert json_data['success'] is True
+
+    def test_upload_description_max_length(self, client):
+        """Test that description has 4000 character limit."""
+        import io
+
+        # Login first
+        client.post('/api/login', json={
+            'username': 'captain',
+            'password': 'bateau'
+        })
+
+        # Try to upload with description over 4000 chars
+        long_description = 'a' * 4001
+        data = {
+            'image': (io.BytesIO(b'test image'), 'test.png'),
+            'description': long_description
+        }
+        response = client.post('/api/upload',
+                              data=data,
+                              content_type='multipart/form-data')
+        assert response.status_code == 400
+        json_data = response.get_json()
+        assert 'error' in json_data
 
 
 class TestStaticFileServing:

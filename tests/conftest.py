@@ -14,24 +14,43 @@ def app():
     """Create and configure a new app instance for each test."""
     # Create a temporary directory for uploads during testing
     test_upload_folder = tempfile.mkdtemp()
-    
-    # Update the UPLOAD_FOLDER in the app configuration
+
+    # Create a temporary database for testing
+    test_db_fd, test_db_path = tempfile.mkstemp()
+
+    # Update the UPLOAD_FOLDER and database in the app configuration
     flask_app.config.update({
         'TESTING': True,
+        'SECRET_KEY': 'test-secret-key-for-sessions',
+        'WTF_CSRF_ENABLED': False,  # Disable CSRF for testing
     })
-    
-    # Directly modify the UPLOAD_FOLDER path used by the app
+
+    # Directly modify the UPLOAD_FOLDER and DATABASE_PATH used by the app
     import app as app_module
+    import models
+
     original_upload_folder = app_module.UPLOAD_FOLDER
+    original_db_path = models.DATABASE_PATH
+
     app_module.UPLOAD_FOLDER = test_upload_folder
-    
+    models.DATABASE_PATH = test_db_path
+
+    # Initialize the test database
+    models.init_db()
+
     yield flask_app
-    
-    # Restore original upload folder and cleanup
+
+    # Restore original paths and cleanup
     app_module.UPLOAD_FOLDER = original_upload_folder
+    models.DATABASE_PATH = original_db_path
+
     import shutil
     if os.path.exists(test_upload_folder):
         shutil.rmtree(test_upload_folder)
+
+    # Close and remove test database
+    os.close(test_db_fd)
+    os.unlink(test_db_path)
 
 @pytest.fixture
 def client(app):
@@ -42,3 +61,12 @@ def client(app):
 def runner(app):
     """A test runner for the app's Click commands."""
     return app.test_cli_runner()
+
+@pytest.fixture
+def logged_in_client(client):
+    """A test client that is already logged in as captain."""
+    client.post('/api/login', json={
+        'username': 'captain',
+        'password': 'bateau'
+    })
+    return client
