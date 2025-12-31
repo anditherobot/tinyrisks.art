@@ -35,6 +35,12 @@ jobs:
               echo "Initializing git repository..."
               git init
               git remote add origin https://github.com/anditherobot/tinyrisks.art.git
+            else
+              # Ensure remote origin is configured correctly
+              if ! git remote get-url origin >/dev/null 2>&1; then
+                echo "Adding remote origin..."
+                git remote add origin https://github.com/anditherobot/tinyrisks.art.git
+              fi
             fi
             
             git pull origin master
