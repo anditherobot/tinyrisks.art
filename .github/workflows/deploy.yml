@@ -27,15 +27,23 @@ jobs:
           REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
         run: |
           ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'EOF'
-            cd ${{ secrets.REMOTE_PATH }}
+            set -e  # Exit on any error
+            cd $REMOTE_PATH
             git pull origin master
+            
+            # Install/update Python dependencies
+            pip3 install -q -r requirements.txt
             
             # Ensure database is initialized, migrated, and seeded
             python3 init_db.py
+            if [ $? -ne 0 ]; then
+              echo "❌ Database initialization failed!"
+              exit 1
+            fi
             
             sudo chown -R www-data:www-data htdocs/
-            sudo systemctl restart tinyrisks
             sudo systemctl reload nginx
+            sudo systemctl restart tinyrisks
             echo "✅ Deployment completed successfully!"
           EOF
 
