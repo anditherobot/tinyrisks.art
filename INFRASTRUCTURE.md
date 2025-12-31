@@ -60,38 +60,32 @@ sudo chown -R www-data:www-data /var/www/tinyrisks.art/htdocs/
 
 ### Nginx Setup
 
-The site is served as **static files directly by nginx** (not through Flask/Python).
+The site uses **nginx as a reverse proxy** to the Flask application running on port 5000.
 
 **Config File**: `/etc/nginx/sites-available/tinyrisks.art`
 **Enabled**: `/etc/nginx/sites-enabled/tinyrisks.art` → symlink to sites-available
+**Template**: See `nginx.conf` in repository
 
 ### Key Configuration Details
 
+Nginx proxies requests to the Flask application except for `/static/` which is served directly for performance:
+
 ```nginx
-# HTTP → HTTPS Redirect
-server {
-    listen 80;
-    listen [::]:80;
-    server_name tinyrisks.art www.tinyrisks.art;
-    return 301 https://$host$request_uri;
+location /static/ {
+    alias /var/www/tinyrisks.art/htdocs/static/;
+    expires 30d;
 }
 
-# HTTPS Server
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    server_name tinyrisks.art www.tinyrisks.art;
-
-    # SSL Certificate (Let's Encrypt)
-    ssl_certificate /etc/letsencrypt/live/tinyrisks.art/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/tinyrisks.art/privkey.pem;
-
-    # Document root
-    root /var/www/tinyrisks.art/htdocs;
-
-    index index.php index.html index.htm;
+location / {
+    proxy_pass http://127.0.0.1:5000;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
 }
 ```
+
+See `nginx.conf` in the repository for the complete configuration.
 
 ### SSL Certificates
 
@@ -310,35 +304,36 @@ This is required for deployment to work.
 
 ## 📊 Site Architecture
 
-### Current Setup: Static Site
+### Current Setup: Flask Application with Nginx Reverse Proxy
 
-The site currently serves **static HTML/CSS/JS files** directly through nginx.
+The site runs a **Flask application** (`app.py`) that:
+- Serves HTML pages dynamically (including authentication-protected routes)
+- Handles API endpoints for community gallery and image uploads
+- Manages user authentication with Flask-Login
 
-The `app.py` Flask application exists in the repository but is **not currently running** or configured as a service.
+Nginx acts as a reverse proxy, forwarding requests to Flask while serving static assets directly for performance.
 
-### If You Need Flask in the Future
+### Flask Service
 
-To enable the Flask app:
+**Service File**: `/etc/systemd/system/tinyrisks.service` (see `tinyrisks.service` in repository)
+**Service Name**: `tinyrisks`
+**Port**: 5000 (localhost only)
 
-1. Create systemd service at `/etc/systemd/system/tinyrisks.service`:
-```ini
-[Unit]
-Description=TinyRisks Flask App
-After=network.target
+**Manage the service**:
+```bash
+sudo systemctl start tinyrisks
+sudo systemctl stop tinyrisks
+sudo systemctl restart tinyrisks
+sudo systemctl status tinyrisks
 
-[Service]
-User=www-data
-Group=www-data
-WorkingDirectory=/var/www/tinyrisks.art
-Environment="PATH=/var/www/tinyrisks.art/venv/bin"
-ExecStart=/var/www/tinyrisks.art/venv/bin/python app.py
-
-[Install]
-WantedBy=multi-user.target
+# View logs
+tail -f /var/www/tinyrisks.art/logs/flask_stderr.log
+tail -f /var/www/tinyrisks.art/logs/flask_stdout.log
 ```
 
-2. Update nginx to proxy to Flask
-3. Update deployment workflow to restart the service
+### Installation
+
+If setting up the Flask service for the first time, see `INSTALLATION.md` for complete setup instructions.
 
 ## 📝 Maintenance Tasks
 

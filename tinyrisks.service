@@ -1,0 +1,21 @@
+[Unit]
+Description=TinyRisks Flask Application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/tinyrisks.art
+Environment="PATH=/usr/bin:/usr/local/bin"
+Environment="FLASK_APP=app.py"
+Environment="SECRET_KEY_FILE=/var/www/tinyrisks.art/.secret_key"
+ExecStart=/usr/bin/python3 /var/www/tinyrisks.art/app.py
+Restart=always
+RestartSec=3
+
+# Logging
+StandardOutput=append:/var/www/tinyrisks.art/logs/flask_stdout.log
+StandardError=append:/var/www/tinyrisks.art/logs/flask_stderr.log
+
+[Install]
+WantedBy=multi-user.target
