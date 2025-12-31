@@ -20,6 +20,8 @@ sudo apt install -y python3 python3-pip nginx
 
 ### 2. Set Up the Application
 
+**Option A: System-wide installation (simpler)**
+
 ```bash
 # Navigate to the application directory
 cd /var/www/tinyrisks.art
@@ -32,6 +34,29 @@ mkdir -p logs
 
 # Initialize the database
 python3 init_db.py
+```
+
+**Option B: Virtual environment (recommended for production)**
+
+```bash
+# Navigate to the application directory
+cd /var/www/tinyrisks.art
+
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Create logs directory
+mkdir -p logs
+
+# Initialize the database
+python3 init_db.py
+
+# If using a virtual environment, update tinyrisks.service to use:
+# ExecStart=/var/www/tinyrisks.art/venv/bin/python3 -m gunicorn -w 4 -b 127.0.0.1:5000 app:app
 ```
 
 ### 3. Install Systemd Service
@@ -116,10 +141,10 @@ tail -f /var/www/tinyrisks.art/logs/flask_stderr.log
 ```
 
 Common issues:
-- Missing Python dependencies: `pip3 install -r requirements.txt` (installs Flask, gunicorn, etc.)
+- Missing Python dependencies: `pip3 install -r requirements.txt` (installs Flask, gunicorn, Flask-Login)
 - Database not initialized: `python3 init_db.py`
 - Port 5000 already in use: Check with `sudo lsof -i :5000`
-- Gunicorn not found: Ensure gunicorn is installed with `pip3 install gunicorn`
+- Gunicorn module not found: Ensure all dependencies are installed with `pip3 install -r requirements.txt`
 
 ### Nginx 404 Errors
 
