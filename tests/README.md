@@ -27,6 +27,13 @@ This directory contains comprehensive test cases for the TinyRisks.art Flask app
 - **File extension validation**: Tests the `allowed_file()` helper function
 - **404 handling**: Verifies proper handling of non-existent routes
 
+### 4. SSH Connection Tests (`test_ssh_connection.py`)
+- **SSH connectivity**: Tests SSH connection to deployment server
+- **SSH key validation**: Verifies SSH key exists and has correct permissions
+- **Deployment directory**: Checks that deployment directory exists on server
+- **Git repository**: Verifies git repository is initialized on server
+- **Diagnostic tools**: Provides detailed connection information for troubleshooting
+
 ## Running the Tests
 
 ### Prerequisites
@@ -50,6 +57,8 @@ pytest -v
 pytest tests/test_image_upload.py
 pytest tests/test_admin_auth.py
 pytest tests/test_app_basics.py
+pytest tests/test_ssh_connection.py  # Requires SSH access
+```
 ```
 
 ### Run Specific Test Class
@@ -94,6 +103,67 @@ Tests are organized into classes based on functionality:
 - `TestAuthenticationFramework`: Login/logout (future implementation)
 - `TestAppConfiguration`: Basic app setup
 - `TestBasicRoutes`: Route availability
+- `TestSSHConnection`: SSH connectivity to deployment server
+- `TestSSHConnectionQuick`: Quick diagnostic SSH tests
+
+## SSH Connection Tests
+
+The SSH connection tests verify connectivity to the deployment server. These tests are useful for:
+- Validating deployment configuration before pushing changes
+- Troubleshooting GitHub Actions deployment failures
+- Ensuring SSH keys are properly configured
+
+### Running SSH Tests
+
+SSH tests require access to the deployment server. Set these environment variables:
+
+```bash
+# Required if not using default values
+export SERVER_HOST=anditherobot.com
+export SERVER_USER=ubuntu
+export SSH_KEY=~/.ssh/id_rsa
+
+# Run SSH tests
+pytest tests/test_ssh_connection.py -v
+```
+
+### SSH Test Coverage
+
+1. **SSH Key Validation**: Verifies key file exists and has correct permissions (600)
+2. **Basic Connectivity**: Tests SSH connection with simple echo command
+3. **Deployment Directory**: Checks `/var/www/tinyrisks.art` exists on server
+4. **Git Repository**: Verifies git is initialized in deployment directory
+
+### Skipping SSH Tests
+
+If you don't have SSH access, these tests will automatically skip:
+
+```bash
+# Run all tests (SSH tests will skip if key not found)
+pytest
+
+# Exclude SSH tests entirely
+pytest --ignore=tests/test_ssh_connection.py
+```
+
+### Using the Shell Script
+
+For quick SSH connectivity checks, use the shell script:
+
+```bash
+# Run with defaults
+./test_ssh_connection.sh
+
+# Run with custom SSH key
+SSH_KEY=/path/to/key ./test_ssh_connection.sh
+```
+
+The script provides detailed diagnostic information about:
+- Server OS and hostname
+- Server uptime
+- Deployment directory status
+- Git repository state
+- Latest deployed commit
 
 ## Authentication Tests
 
