@@ -6,7 +6,7 @@ This document explains how to set up the Flask application with nginx and system
 
 - Ubuntu 22.04 LTS (or similar)
 - nginx installed
-- Python 3.7+
+- Python 3.8+
 - sudo access
 
 ## Installation Steps
@@ -34,6 +34,10 @@ mkdir -p logs
 
 # Initialize the database
 python3 init_db.py
+
+# Note: If using system-wide installation, update tinyrisks.service to use:
+# Environment="PATH=/usr/bin:/usr/local/bin"
+# ExecStart=/usr/bin/python3 -m gunicorn -w 4 -b 127.0.0.1:5000 app:app
 ```
 
 **Option B: Virtual environment (recommended for production)**
@@ -55,8 +59,7 @@ mkdir -p logs
 # Initialize the database
 python3 init_db.py
 
-# If using a virtual environment, update tinyrisks.service to use:
-# ExecStart=/var/www/tinyrisks.art/venv/bin/python3 -m gunicorn -w 4 -b 127.0.0.1:5000 app:app
+# Note: The provided tinyrisks.service file is pre-configured for virtual environment use
 ```
 
 ### 3. Install Systemd Service
@@ -99,7 +102,6 @@ sudo systemctl reload nginx
 ```bash
 # Ensure www-data can access application files
 sudo chown -R www-data:www-data /var/www/tinyrisks.art/htdocs/
-sudo chown -R www-data:www-data /var/www/tinyrisks.art/logs/
 ```
 
 ## Verification
@@ -113,11 +115,11 @@ sudo systemctl status tinyrisks
 ### View Flask Logs
 
 ```bash
-# Standard output
-tail -f /var/www/tinyrisks.art/logs/flask_stdout.log
+# View recent logs (using systemd journal)
+sudo journalctl -u tinyrisks -n 50 --no-pager
 
-# Error output
-tail -f /var/www/tinyrisks.art/logs/flask_stderr.log
+# Follow logs in real-time
+sudo journalctl -u tinyrisks -f
 ```
 
 ### Test the Application
@@ -137,7 +139,6 @@ curl https://tinyrisks.art/
 Check the logs:
 ```bash
 sudo journalctl -u tinyrisks -n 50 --no-pager
-tail -f /var/www/tinyrisks.art/logs/flask_stderr.log
 ```
 
 Common issues:
@@ -154,11 +155,11 @@ Common issues:
 
 ### Admin Page 401/Redirect to Login
 
-This is expected behavior! The `/admin` route requires authentication. Navigate to `/login` first to log in with the admin credentials.
+This is expected behavior! The `/admin` route requires authentication. Navigate to `/login` first to log in with your administrator account.
 
-Default credentials:
-- Username: `admin`
-- Password: `adminpass123`
+Use the administrator username and password that were configured during database initialization. If you used the default credentials for initial setup, change them to a strong, unique password immediately after first login.
+
+**Important:** Default or shared credentials should never be used in production. Always use strong, randomly generated passwords and rotate them regularly.
 
 ## Updating the Application
 

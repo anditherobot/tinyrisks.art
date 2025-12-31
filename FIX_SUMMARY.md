@@ -33,7 +33,7 @@ The Flask application needs to be running and nginx needs to be configured as a 
 - Defines how to run the Flask application as a system service using Gunicorn (production WSGI server)
 - Runs as `www-data` user
 - Uses 4 worker processes for handling concurrent requests
-- Logs to `/var/www/tinyrisks.art/logs/`
+- Logs to systemd journal for better log management and rotation
 - Auto-restarts on failure
 
 ### 3. Created installation guide (`INSTALLATION.md`)
@@ -47,8 +47,9 @@ The Flask application needs to be running and nginx needs to be configured as a 
 - Updated nginx configuration details
 
 ### 5. Updated deployment workflow (`.github/workflows/deploy.yml`)
-- Added creation of `logs/` directory
+- Added creation of `logs/` directory for nginx and other logs
 - Added permission setting for logs directory
+- Added service existence check before restarting Flask service
 - Already includes `systemctl restart tinyrisks` (which confirms service should exist)
 
 ## Required Actions on Production Server
@@ -90,7 +91,7 @@ sudo systemctl reload nginx
 sudo systemctl status tinyrisks
 
 # Check Flask logs
-tail -f /var/www/tinyrisks.art/logs/flask_stderr.log
+sudo journalctl -u tinyrisks -n 50
 
 # Test the admin endpoint
 curl -I https://tinyrisks.art/admin
@@ -122,8 +123,9 @@ No additional manual intervention will be needed.
 
 ## Security Notes
 
-- The default admin credentials are `admin` / `adminpass123`
-- These should be changed immediately after the first login
+- Initial admin credentials are created during database initialization (default: username `admin`, password `adminpass123`)
+- **Critical:** Change the default admin password immediately after first login
+- In production, consider generating unique credentials for each deployment and communicating them via secure, out-of-band channels
 - Flask-Login manages secure session cookies
 - All traffic uses HTTPS with Let's Encrypt certificates
 - The Flask app runs on localhost:5000 (not exposed externally)

@@ -17,9 +17,11 @@ git pull origin master
 # Install dependencies (includes gunicorn)
 pip3 install -r requirements.txt
 
-# Create logs directory
+# Verify gunicorn installed successfully
+python3 -m gunicorn --version || { echo "Gunicorn installation failed. Check requirements.txt and pip output."; exit 1; }
+
+# Create logs directory (for nginx and other logs, not Flask)
 mkdir -p logs
-sudo chown -R www-data:www-data logs/
 
 # Install systemd service
 sudo cp tinyrisks.service /etc/systemd/system/
@@ -52,8 +54,8 @@ curl -I https://tinyrisks.art/admin
 ## After Setup
 
 - `/admin` will redirect to `/login` (requires authentication)
-- Login with: username `admin`, password `adminpass123`
-- Change the password immediately after first login
+- Login with the admin credentials configured during database initialization
+- **Security Note:** Change the default admin password immediately after first login
 - Future deployments will automatically restart the Flask service
 
 ## Troubleshooting
@@ -61,7 +63,6 @@ curl -I https://tinyrisks.art/admin
 **Flask service won't start:**
 ```bash
 sudo journalctl -u tinyrisks -n 50
-tail -f /var/www/tinyrisks.art/logs/flask_stderr.log
 ```
 
 **Still getting 404:**
