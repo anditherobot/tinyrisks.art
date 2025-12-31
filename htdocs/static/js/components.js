@@ -91,7 +91,7 @@ function createHeader({ brand = 'TinyRisks', subtitle = 'Art Studio' }) {
           <li><a href="/poseidon.html">Poseidon</a></li>
           <li><a href="/writing.html">Writing</a></li>
           <li><a href="/#contact">Contact</a></li>
-          <li><button class="theme-toggle" onclick="toggleTheme()">Brass/Cyan</button></li>
+          <li><button class="theme-toggle" onclick="toggleTheme()">Theme</button></li>
         </ul>
       </nav>
     </header>
@@ -111,7 +111,10 @@ function createFooter({ year = new Date().getFullYear(), text = 'TinyRisks.art â
 function toggleTheme() {
   const body = document.body;
   const current = body.getAttribute('data-theme');
-  body.setAttribute('data-theme', current === 'brass' ? 'cyan' : 'brass');
+  const themes = ['brass', 'cyan', 'light'];
+  const currentIndex = themes.indexOf(current);
+  const nextIndex = (currentIndex + 1) % themes.length;
+  body.setAttribute('data-theme', themes[nextIndex]);
 }
 
 // Work Listing Component - renders multiple work cards
