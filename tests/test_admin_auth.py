@@ -50,10 +50,10 @@ class TestAuthenticationFramework:
         assert response.status_code in [200, 302, 401]
 
     def test_login_with_valid_credentials(self, client):
-        """Test login with valid credentials (captain/bateau)."""
+        """Test login with valid credentials (admin/adminpass123)."""
         response = client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
         assert response.status_code == 200
         json_data = response.get_json()
@@ -63,7 +63,7 @@ class TestAuthenticationFramework:
     def test_login_with_invalid_credentials(self, client):
         """Test login with invalid credentials."""
         response = client.post('/api/login', json={
-            'username': 'captain',
+            'username': 'admin',
             'password': 'wrongpassword'
         })
         assert response.status_code in [401, 403]
@@ -76,7 +76,7 @@ class TestAuthenticationFramework:
         """Test login with missing username or password."""
         # Missing password
         response = client.post('/api/login', json={
-            'username': 'captain'
+            'username': 'admin'
         })
         # App should handle None password gracefully
         assert response.status_code in [400, 401]
@@ -85,8 +85,8 @@ class TestAuthenticationFramework:
         """Test logout functionality when user is logged in."""
         # First login
         login_response = client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
         assert login_response.status_code == 200
 
@@ -112,8 +112,8 @@ class TestAuthenticationFramework:
         """Test admin panel access with valid authentication."""
         # Login first
         client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
 
         # Access admin panel
@@ -124,8 +124,8 @@ class TestAuthenticationFramework:
         """Test that session persists across requests."""
         # Login
         login_response = client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
         assert login_response.status_code == 200
 
@@ -138,8 +138,8 @@ class TestAuthenticationFramework:
         """Test that protected endpoints are inaccessible after logout."""
         # Login
         client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
 
         # Logout
@@ -171,8 +171,8 @@ class TestAdminImageUploadControl:
 
         # Login first
         client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
 
         # Upload image
@@ -190,8 +190,8 @@ class TestAdminImageUploadControl:
 
         # Login first
         client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
 
         # Upload image with description
@@ -212,8 +212,8 @@ class TestAdminImageUploadControl:
 
         # Login first
         client.post('/api/login', json={
-            'username': 'captain',
-            'password': 'bateau'
+            'username': 'admin',
+            'password': 'adminpass123'
         })
 
         # Try to upload with description over 4000 chars
