@@ -31,6 +31,9 @@ jobs:
             cd $REMOTE_PATH
             git pull origin master
             
+            # Create logs directory if it doesn't exist
+            mkdir -p logs
+            
             # Install/update Python dependencies
             pip3 install -q -r requirements.txt
             
@@ -41,9 +44,20 @@ jobs:
               exit 1
             fi
             
+            # Set permissions
             sudo chown -R www-data:www-data htdocs/
+            
+            # Reload/restart services
             sudo systemctl reload nginx
-            sudo systemctl restart tinyrisks
+            
+            # Restart Flask service if installed
+            if systemctl list-unit-files | grep -q '^tinyrisks\.service'; then
+              sudo systemctl restart tinyrisks
+            else
+              echo "⚠️ tinyrisks systemd service not found; skipping restart."
+              echo "   Ensure tinyrisks.service is installed in /etc/systemd/system/ for Flask to run."
+            fi
+            
             echo "✅ Deployment completed successfully!"
           EOF
 
