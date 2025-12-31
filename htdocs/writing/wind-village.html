@@ -270,7 +270,7 @@
 }
 </style>
 </head>
-<body data-theme="brass">
+<body data-theme="light">
 
   <header>
   <div style="display:flex;align-items:center;gap:14px">
@@ -462,7 +462,10 @@
     function toggleTheme() {
       const body = document.body;
       const current = body.getAttribute('data-theme');
-      body.setAttribute('data-theme', current === 'brass' ? 'cyan' : 'brass');
+      const themes = ['brass', 'cyan', 'light'];
+      const currentIndex = themes.indexOf(current);
+      const nextIndex = (currentIndex + 1) % themes.length;
+      body.setAttribute('data-theme', themes[nextIndex]);
     }
 
     
