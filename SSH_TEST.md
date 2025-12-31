@@ -16,7 +16,7 @@ The easiest way to test SSH connectivity:
 SSH_KEY=/path/to/your/key ./test_ssh_connection.sh
 
 # With all custom settings
-SERVER_HOST=youserver.com SERVER_USER=ubuntu SSH_KEY=~/.ssh/custom_key ./test_ssh_connection.sh
+SERVER_HOST=yourserver.com SERVER_USER=ubuntu SSH_KEY=~/.ssh/custom_key ./test_ssh_connection.sh
 ```
 
 ### Using Python Tests

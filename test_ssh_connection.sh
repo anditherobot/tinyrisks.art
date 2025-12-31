@@ -31,8 +31,16 @@ if [ ! -f "$SSH_KEY" ]; then
 fi
 
 echo -e "${YELLOW}→ Checking SSH key permissions...${NC}"
-KEY_PERMS=$(stat -c %a "$SSH_KEY" 2>/dev/null || stat -f %A "$SSH_KEY" 2>/dev/null)
-if [ "$KEY_PERMS" != "600" ]; then
+# Check permissions - works on both GNU and BSD systems
+if [ "$(uname)" = "Darwin" ] || [ "$(uname)" = "FreeBSD" ]; then
+    # BSD/macOS
+    KEY_PERMS=$(stat -f %Lp "$SSH_KEY" 2>/dev/null)
+else
+    # GNU/Linux
+    KEY_PERMS=$(stat -c %a "$SSH_KEY" 2>/dev/null)
+fi
+
+if [ -n "$KEY_PERMS" ] && [ "$KEY_PERMS" != "600" ]; then
     echo -e "${YELLOW}⚠️  WARNING: SSH key has incorrect permissions ($KEY_PERMS). Should be 600.${NC}"
     echo "You may need to run: chmod 600 $SSH_KEY"
 fi

@@ -53,7 +53,6 @@ class TestSSHConnection:
         try:
             import stat
             mode = key_path.stat().st_mode
-            perms = stat.filemode(mode)
             # Should be -rw------- (600)
             # We check that group and others have no permissions
             assert not (mode & stat.S_IRGRP), "SSH key should not be readable by group"
@@ -195,7 +194,7 @@ class TestSSHConnection:
 class TestSSHConnectionQuick:
     """Quick SSH connection test without fixtures for manual runs."""
     
-    @pytest.mark.skip(reason="Manual test - run explicitly with pytest -k quick")
+    @pytest.mark.skip(reason="Manual test - run explicitly with: pytest tests/test_ssh_connection.py::TestSSHConnectionQuick::test_quick_ssh_check -v -s")
     def test_quick_ssh_check(self):
         """Quick manual SSH check - prints diagnostic information."""
         ssh_config = {
