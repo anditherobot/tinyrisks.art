@@ -29,6 +29,10 @@ jobs:
           ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'EOF'
             cd ${{ secrets.REMOTE_PATH }}
             git pull origin master
+            
+            # Ensure database is initialized, migrated, and seeded
+            python3 init_db.py
+            
             sudo chown -R www-data:www-data htdocs/
             sudo systemctl reload nginx
             echo "✅ Deployment completed successfully!"
