@@ -29,6 +29,14 @@ jobs:
           ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'EOF'
             set -e  # Exit on any error
             cd $REMOTE_PATH
+            
+            # Check if git repo exists, initialize if not
+            if [ ! -d .git ]; then
+              echo "Initializing git repository..."
+              git init
+              git remote add origin https://github.com/anditherobot/tinyrisks.art.git
+            fi
+            
             git pull origin master
             
             # Create logs directory if it doesn't exist
