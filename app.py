@@ -150,6 +150,7 @@ def get_community_image(image_id):
 @login_required
 def create_community_image_api():
     """Create a new community image gallery item"""
+    saved_filenames = []
     try:
         # Get form data
         title = request.form.get('title', '').strip()
@@ -170,7 +171,6 @@ def create_community_image_api():
             return jsonify({'error': 'Maximum 9 images allowed'}), 400
         
         # Process and save files
-        saved_filenames = []
         for file in files:
             if file and file.filename and allowed_file(file.filename):
                 # Check file size
@@ -203,6 +203,15 @@ def create_community_image_api():
         })
     
     except Exception as e:
+        # Clean up any files that were saved before the error to avoid orphaned uploads
+        for filename in saved_filenames:
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            except OSError:
+                # If cleanup fails, log but preserve the original error context
+                pass
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/community-images/<int:image_id>', methods=['PUT'])
@@ -231,13 +240,7 @@ def update_community_image_api(image_id):
             if len(files) > 9:
                 return jsonify({'error': 'Maximum 9 images allowed'}), 400
             
-            # Delete old images
-            for old_filename in existing_image['images']:
-                old_path = os.path.join(UPLOAD_FOLDER, old_filename)
-                if os.path.exists(old_path):
-                    os.remove(old_path)
-            
-            # Process new files
+            # Process and save new files first
             saved_filenames = []
             for file in files:
                 if file and file.filename and allowed_file(file.filename):
@@ -258,7 +261,18 @@ def update_community_image_api(image_id):
             if not saved_filenames:
                 return jsonify({'error': 'No valid images uploaded'}), 400
             
+            # Update database with new images
             update_community_image(image_id, title, caption, description, saved_filenames)
+            
+            # Only delete old images after successful database update
+            for old_filename in existing_image['images']:
+                old_path = os.path.join(UPLOAD_FOLDER, old_filename)
+                try:
+                    if os.path.exists(old_path):
+                        os.remove(old_path)
+                except OSError:
+                    # Log but don't fail if old file deletion fails
+                    pass
         else:
             # Keep existing images
             update_community_image(image_id, title, caption, description, existing_image['images'])

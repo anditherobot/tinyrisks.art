@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import json
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -126,7 +127,6 @@ def get_all_images():
 # Community Images CRUD operations
 def create_community_image(title, caption, description, images):
     """Create a new community image gallery item"""
-    import json
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -145,7 +145,6 @@ def create_community_image(title, caption, description, images):
 
 def get_all_community_images():
     """Get all community images"""
-    import json
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -157,14 +156,18 @@ def get_all_community_images():
     images = []
     for row in rows:
         img = dict(row)
-        img['images'] = json.loads(img['images'])
+        try:
+            img['images'] = json.loads(img['images'])
+        except (json.JSONDecodeError, TypeError) as e:
+            # Handle corrupted JSON data gracefully
+            print(f"Warning: Failed to parse images JSON for item {img.get('id')}: {e}")
+            img['images'] = []
         images.append(img)
     
     return images
 
 def get_community_image_by_id(image_id):
     """Get a single community image by ID"""
-    import json
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -174,13 +177,17 @@ def get_community_image_by_id(image_id):
     
     if row:
         img = dict(row)
-        img['images'] = json.loads(img['images'])
+        try:
+            img['images'] = json.loads(img['images'])
+        except (json.JSONDecodeError, TypeError) as e:
+            # Handle corrupted JSON data gracefully
+            print(f"Warning: Failed to parse images JSON for item {img.get('id')}: {e}")
+            img['images'] = []
         return img
     return None
 
 def update_community_image(image_id, title, caption, description, images):
     """Update an existing community image"""
-    import json
     conn = get_db_connection()
     cursor = conn.cursor()
     

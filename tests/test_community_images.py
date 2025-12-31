@@ -1,9 +1,7 @@
 """
 Test cases for community image CRUD functionality.
 """
-import pytest
 import io
-import json
 
 
 class TestCommunityImageCRUD:

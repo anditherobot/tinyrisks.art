@@ -270,6 +270,9 @@
       
       if (count > 9) {
         showStatus('Maximum 9 images allowed', 'error');
+        // Clear invalid selection and reset count to prevent submitting too many files
+        imagesInput.value = '';
+        fileCount.textContent = '0';
       }
     });
 
@@ -301,7 +304,7 @@
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.5rem; margin-top: 1rem;">
               ${item.images.map(img => `
-                <img src="/static/uploads/${img}" alt="" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px;">
+                <img src="/static/uploads/${escapeHtml(img)}" alt="" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px;">
               `).join('')}
             </div>
             <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted);">
