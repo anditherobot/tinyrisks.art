@@ -34,6 +34,7 @@ jobs:
             python3 init_db.py
             
             sudo chown -R www-data:www-data htdocs/
+            sudo systemctl restart tinyrisks
             sudo systemctl reload nginx
             echo "✅ Deployment completed successfully!"
           EOF

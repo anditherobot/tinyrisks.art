@@ -8,8 +8,9 @@ When you push to the `main` branch, GitHub Actions will automatically:
 1. SSH into your server
 2. Pull the latest code
 3. Initialize/migrate/seed the database (safe to run multiple times)
-4. Restart the Flask service
-5. Verify the site is live
+4. Restart the Flask application service
+5. Reload nginx
+6. Verify the site is live
 
 **Note:** The database file is NOT stored in source control to avoid conflicts. It's automatically initialized during deployment.
 
