@@ -10,67 +10,62 @@ A minimalist art portfolio website built with Flask and semantic HTML.
 - Image upload with metadata support
 - Responsive design
 
-## Setup
+## Local Development
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Python 3.8 or higher
 - pip
 
-### Installation
+### Setup
 
-1. Clone the repository:
-```bash
-git clone https://github.com/anditherobot/tinyrisks.art.git
-cd tinyrisks.art
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/anditherobot/tinyrisks.art.git
+   cd tinyrisks.art
+   ```
 
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+2. **Create and activate a virtual environment:**
+   ```bash
+   # Windows
+   python -m venv venv
+   .\venv\Scripts\activate
 
-3. Initialize the database:
-```bash
-python3 init_db.py
-```
+   # macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
 
-Or run the app directly (it will initialize on first run):
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Initialize the database:**
+   ```bash
+   python init_db.py
+   ```
+   *Note: This creates the SQLite database and a default admin user.*
+
+### Running the App
+
+Start the development server:
 ```bash
 python app.py
 ```
 
-The database will be automatically initialized with a default admin user.
+- **Website:** [http://localhost:5000](http://localhost:5000)
+- **Admin Panel:** [http://localhost:5000/login](http://localhost:5000/login)
 
 ### Admin Credentials
 
-Default admin credentials (change after first login):
-- **Username:** admin
-- **Password:** adminpass123
-
-## Running the Application
-
-```bash
-python app.py
-```
-
-The server will start at `http://localhost:5000`
-
-## Admin Panel
-
-Access the admin panel at `/admin` to:
-- Upload images to the community gallery
-- Manage gallery items with full CRUD operations
-- Add titles, captions, and descriptions
-- Upload multiple images per gallery item (min 1, max 9)
-
-## Environment Variables
-
-- `SECRET_KEY`: Flask secret key for sessions (auto-generated in development)
+Default credentials (please change after first login):
+- **Username:** `admin`
+- **Password:** `adminpass123`
 
 ## Testing
 
-Run tests with pytest:
+Run the test suite to ensure everything is working correctly:
 ```bash
 pytest
 ```

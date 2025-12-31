@@ -1,340 +1,240 @@
-// Admin Panel JavaScript
-// Handles snippet management, World Building prompts, and asset uploads
-
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize all admin features
-  initSnippetManager();
-  initWorldBuildingFeatures();
+    // --- State & Elements ---
+    const elements = {
+        tabs: {
+            create: document.getElementById('tab-create'),
+            library: document.getElementById('tab-library')
+        },
+        panels: {
+            create: document.getElementById('panel-create'),
+            library: document.getElementById('panel-library')
+        },
+        form: document.getElementById('editorForm'),
+        inputs: {
+            id: document.getElementById('editingId'),
+            title: document.getElementById('title'),
+            caption: document.getElementById('caption'),
+            desc: document.getElementById('description'),
+            images: document.getElementById('images'),
+            fileStatus: document.getElementById('fileStatus')
+        },
+        preview: document.getElementById('mdPreview'),
+        lists: {
+            recent: document.getElementById('recentList'),
+            library: document.getElementById('libraryGrid')
+        },
+        btns: {
+            save: document.getElementById('saveBtn'),
+            cancel: document.getElementById('cancelBtn'),
+            logout: document.getElementById('logoutBtn')
+        },
+        status: document.getElementById('statusMsg')
+    };
+
+    // --- Init ---
+    loadData();
+    setupMarkdownPreview();
+    
+    // --- Event Listeners ---
+    elements.btns.logout.addEventListener('click', handleLogout);
+    elements.form.addEventListener('submit', handleFormSubmit);
+    elements.btns.cancel.addEventListener('click', resetForm);
+    elements.inputs.images.addEventListener('change', updateFileStatus);
+
+    // Global access for onclick handlers in HTML
+    window.switchTab = switchTab;
+    window.editItem = editItem;
+    window.deleteItem = deleteItem;
+
+    // --- Core Functions ---
+
+    function switchTab(tabName) {
+        // Toggle Buttons
+        Object.values(elements.tabs).forEach(btn => btn.classList.remove('active'));
+        if(elements.tabs[tabName]) elements.tabs[tabName].classList.add('active');
+
+        // Toggle Panels
+        Object.values(elements.panels).forEach(p => p.classList.remove('active'));
+        if(elements.panels[tabName]) elements.panels[tabName].classList.add('active');
+
+        if(tabName === 'library') loadData(); // Refresh data when opening library
+    }
+
+    function setupMarkdownPreview() {
+        const updatePreview = () => {
+            const raw = elements.inputs.desc.value;
+            elements.preview.innerHTML = marked.parse(raw);
+        };
+        elements.inputs.desc.addEventListener('input', updatePreview);
+        // Initial call
+        updatePreview(); 
+    }
+
+    async function loadData() {
+        try {
+            const res = await fetch('/api/community-images');
+            const data = await res.json();
+            
+            renderRecentList(data);
+            renderLibraryGrid(data);
+        } catch (err) {
+            console.error("Failed to load data", err);
+        }
+    }
+
+    // --- Rendering ---
+
+    function renderRecentList(items) {
+        const recent = items.slice(0, 5);
+        elements.lists.recent.innerHTML = recent.map(item => `
+            <li class="recent-item" onclick="editItem(${item.id})">
+                ${escapeHtml(item.title)}
+            </li>
+        `).join('') || '<li class="recent-item">No posts yet</li>';
+    }
+
+    function renderLibraryGrid(items) {
+        if (items.length === 0) {
+            elements.lists.library.innerHTML = '<p style="padding:1rem">No items found.</p>';
+            return;
+        }
+
+        elements.lists.library.innerHTML = items.map(item => {
+            const thumb = item.images[0] ? `/static/uploads/${item.images[0]}` : ''; // Placeholder logic could go here
+            return `
+            <div class="library-item">
+                <img src="${thumb}" class="lib-thumb" loading="lazy" alt="Thumbnail">
+                <div style="font-weight:bold;margin-bottom:auto">${escapeHtml(item.title)}</div>
+                <div style="font-size:0.8rem;color:var(--muted)">${item.images.length} images</div>
+                <div class="action-bar">
+                    <button class="btn-sm" onclick="editItem(${item.id})">Edit</button>
+                    <button class="btn-sm btn-danger" onclick="deleteItem(${item.id})">Delete</button>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    // --- CRUD Operations ---
+
+    async function handleFormSubmit(e) {
+        e.preventDefault();
+        
+        const id = elements.inputs.id.value;
+        const isEdit = !!id;
+        const formData = new FormData(elements.form);
+
+        // Validation for new posts
+        if (!isEdit && elements.inputs.images.files.length === 0) {
+            showStatus('Please select at least one image.', 'error');
+            return;
+        }
+
+        setStatus('Saving...', 'neutral');
+        elements.btns.save.disabled = true;
+
+        try {
+            const url = isEdit ? `/api/community-images/${id}` : '/api/community-images';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const res = await fetch(url, { method, body: formData });
+            const json = await res.json();
+
+            if (res.ok) {
+                showStatus(isEdit ? 'Updated!' : 'Published!', 'success');
+                resetForm();
+                loadData(); // Refresh lists
+                // Optional: Switch to library to see result? Or stay to create more.
+                // switchTab('library'); 
+            } else {
+                throw new Error(json.error || 'Operation failed');
+            }
+        } catch (err) {
+            showStatus(err.message, 'error');
+        } finally {
+            elements.btns.save.disabled = false;
+        }
+    }
+
+    async function deleteItem(id) {
+        if(!confirm('Permanently delete this project?')) return;
+        
+        try {
+            const res = await fetch(`/api/community-images/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                loadData();
+            } else {
+                alert('Failed to delete');
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function editItem(id) {
+        // 1. Fetch details (to get full description etc if not in list view)
+        fetch(`/api/community-images/${id}`)
+            .then(res => res.json())
+            .then(item => {
+                // 2. Populate Form
+                elements.inputs.id.value = item.id;
+                elements.inputs.title.value = item.title;
+                elements.inputs.caption.value = item.caption || '';
+                elements.inputs.desc.value = item.description || '';
+                
+                // 3. UI Updates
+                elements.inputs.images.required = false; // Not required on edit
+                elements.btns.save.textContent = 'Update Project';
+                elements.btns.cancel.style.display = 'inline-block';
+                elements.inputs.fileStatus.textContent = `${item.images.length} existing images (Upload new to replace/add)`;
+                
+                // 4. Trigger Preview Update
+                elements.inputs.desc.dispatchEvent(new Event('input'));
+                
+                // 5. Switch Tab
+                switchTab('create');
+            })
+            .catch(err => console.error("Edit fetch failed", err));
+    }
+
+    function resetForm() {
+        elements.form.reset();
+        elements.inputs.id.value = '';
+        elements.btns.save.textContent = 'Publish Project';
+        elements.btns.cancel.style.display = 'none';
+        elements.inputs.images.required = true;
+        elements.inputs.fileStatus.textContent = 'No files selected';
+        elements.inputs.desc.dispatchEvent(new Event('input')); // clear preview
+        setStatus('', 'neutral');
+    }
+
+    // --- Helpers ---
+
+    function updateFileStatus() {
+        const count = elements.inputs.images.files.length;
+        elements.inputs.fileStatus.textContent = count > 0 ? `${count} file(s) selected` : 'No files selected';
+    }
+
+    async function handleLogout() {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/login';
+    }
+
+    function setStatus(msg, type) {
+        const el = elements.status;
+        el.textContent = msg;
+        el.style.color = type === 'error' ? 'var(--error)' : type === 'success' ? 'var(--success)' : 'var(--muted)';
+    }
+
+    function showStatus(msg, type) {
+        setStatus(msg, type);
+        setTimeout(() => setStatus('', 'neutral'), 3000);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 });
-
-// ============================================================================
-// Snippet Management (existing functionality)
-// ============================================================================
-
-function initSnippetManager() {
-  const snippetForm = document.getElementById('snippetForm');
-  const refreshBtn = document.getElementById('refreshBtn');
-  const buildBtn = document.getElementById('buildBtn');
-
-  if (snippetForm) {
-    snippetForm.addEventListener('submit', handleSnippetSubmit);
-  }
-
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', loadSnippets);
-  }
-
-  if (buildBtn) {
-    buildBtn.addEventListener('click', buildSite);
-  }
-
-  // Load snippets on page load
-  loadSnippets();
-}
-
-async function handleSnippetSubmit(e) {
-  e.preventDefault();
-
-  const formData = new FormData(e.target);
-  const data = {
-    title: formData.get('title'),
-    content: formData.get('content'),
-    tags: formData.get('tags')?.split(',').map(t => t.trim()).filter(Boolean) || []
-  };
-
-  try {
-    const response = await fetch('/api/snippets', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (response.ok) {
-      showNotification('Post created successfully!', 'success');
-      e.target.reset();
-      loadSnippets();
-    } else {
-      throw new Error('Failed to create post');
-    }
-  } catch (error) {
-    showNotification('Error creating post: ' + error.message, 'error');
-  }
-}
-
-async function loadSnippets() {
-  const container = document.getElementById('snippetsList');
-  if (!container) return;
-
-  try {
-    const response = await fetch('/api/snippets');
-    const snippets = await response.json();
-
-    if (snippets.length === 0) {
-      container.innerHTML = '<p class="loading">No posts yet. Create your first one!</p>';
-      return;
-    }
-
-    container.innerHTML = snippets.map(snippet => `
-      <div class="snippet-item">
-        <div class="snippet-header">
-          <div>
-            <h3 class="snippet-title">${escapeHtml(snippet.title)}</h3>
-            <div class="snippet-meta">${new Date(snippet.created_at).toLocaleDateString()}</div>
-          </div>
-          <button class="btn-delete" onclick="deleteSnippet('${snippet.id}')">Delete</button>
-        </div>
-        <div class="snippet-content">${escapeHtml(snippet.content)}</div>
-        ${snippet.tags?.length ? `
-          <div class="snippet-tags">
-            ${snippet.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
-          </div>
-        ` : ''}
-      </div>
-    `).join('');
-  } catch (error) {
-    container.innerHTML = '<p class="loading" style="color:var(--error)">Error loading posts</p>';
-  }
-}
-
-async function deleteSnippet(id) {
-  if (!confirm('Delete this post?')) return;
-
-  try {
-    const response = await fetch(`/api/snippets/${id}`, { method: 'DELETE' });
-    if (response.ok) {
-      showNotification('Post deleted', 'success');
-      loadSnippets();
-    } else {
-      throw new Error('Failed to delete');
-    }
-  } catch (error) {
-    showNotification('Error deleting post', 'error');
-  }
-}
-
-async function buildSite() {
-  showNotification('Building site...', 'success');
-  try {
-    const response = await fetch('/api/build', { method: 'POST' });
-    if (response.ok) {
-      showNotification('Site built successfully!', 'success');
-    } else {
-      throw new Error('Build failed');
-    }
-  } catch (error) {
-    showNotification('Build error: ' + error.message, 'error');
-  }
-}
-
-// ============================================================================
-// World Building Features
-// ============================================================================
-
-function initWorldBuildingFeatures() {
-  // Copy-to-clipboard functionality for prompts
-  const copyButtons = document.querySelectorAll('.btn-copy-prompt');
-  copyButtons.forEach(btn => {
-    btn.addEventListener('click', handleCopyPrompt);
-  });
-
-  // Upload form enhancements
-  const uploadForms = document.querySelectorAll('.wb-upload-form');
-  uploadForms.forEach(form => {
-    enhanceUploadForm(form);
-  });
-
-  // File input visual feedback
-  const fileInputs = document.querySelectorAll('.wb-file-input');
-  fileInputs.forEach(input => {
-    input.addEventListener('change', handleFileInputChange);
-  });
-}
-
-async function handleCopyPrompt(e) {
-  const button = e.currentTarget;
-  const promptText = button.getAttribute('data-prompt');
-
-  try {
-    await navigator.clipboard.writeText(promptText);
-
-    // Visual feedback
-    const originalText = button.textContent;
-    button.textContent = 'Copied!';
-    button.style.background = 'var(--success)';
-    button.style.color = 'white';
-    button.style.borderColor = 'var(--success)';
-
-    setTimeout(() => {
-      button.textContent = originalText;
-      button.style.background = '';
-      button.style.color = '';
-      button.style.borderColor = '';
-    }, 2000);
-
-    showNotification('Prompt copied to clipboard!', 'success');
-  } catch (error) {
-    showNotification('Failed to copy prompt', 'error');
-    console.error('Copy failed:', error);
-  }
-}
-
-function enhanceUploadForm(form) {
-  const fileInput = form.querySelector('input[type="file"]');
-  const submitButton = form.querySelector('button[type="submit"]');
-
-  if (!fileInput || !submitButton) return;
-
-  // Add drag-and-drop functionality
-  const dropZone = createDropZone(fileInput);
-  fileInput.parentElement.appendChild(dropZone);
-  fileInput.style.display = 'none';
-
-  dropZone.addEventListener('click', () => fileInput.click());
-
-  dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.style.borderColor = 'var(--accent)';
-    dropZone.style.background = 'rgba(214,167,108,.1)';
-  });
-
-  dropZone.addEventListener('dragleave', () => {
-    dropZone.style.borderColor = '';
-    dropZone.style.background = '';
-  });
-
-  dropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropZone.style.borderColor = '';
-    dropZone.style.background = '';
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      fileInput.files = files;
-      updateDropZoneText(dropZone, files[0]);
-    }
-  });
-
-  // Add progress tracking to form submission
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(form);
-    const file = fileInput.files[0];
-
-    if (!file) {
-      showNotification('Please select a file', 'error');
-      return;
-    }
-
-    // Show progress
-    submitButton.disabled = true;
-    submitButton.textContent = 'Uploading...';
-
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        showNotification('Upload successful!', 'success');
-        // Reload page to show updated asset
-        setTimeout(() => window.location.reload(), 1500);
-      } else {
-        const error = await response.text();
-        throw new Error(error || 'Upload failed');
-      }
-    } catch (error) {
-      showNotification('Upload error: ' + error.message, 'error');
-      submitButton.disabled = false;
-      submitButton.textContent = submitButton.textContent.replace('Uploading...', 'Upload');
-    }
-  });
-}
-
-function createDropZone(fileInput) {
-  const dropZone = document.createElement('div');
-  dropZone.className = 'wb-drop-zone';
-  dropZone.style.cssText = `
-    border: 2px dashed var(--line);
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: #0e1219;
-    color: var(--muted);
-    font-size: 0.9rem;
-  `;
-
-  const accept = fileInput.getAttribute('accept') || '';
-  const fileType = accept.includes('image') ? 'image' :
-                   accept.includes('video') ? 'video' :
-                   accept.includes('audio') ? 'audio' : 'file';
-
-  dropZone.innerHTML = `
-    <div style="margin-bottom: 0.5rem; font-size: 2rem; color: var(--accent);">📁</div>
-    <div>Click to select ${fileType} or drag and drop here</div>
-    <div style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--muted);">
-      Accepted: ${accept || 'any file'}
-    </div>
-  `;
-
-  return dropZone;
-}
-
-function updateDropZoneText(dropZone, file) {
-  const icon = file.type.includes('image') ? '🖼️' :
-               file.type.includes('video') ? '🎬' :
-               file.type.includes('audio') ? '🎵' : '📄';
-
-  dropZone.innerHTML = `
-    <div style="margin-bottom: 0.5rem; font-size: 2rem;">${icon}</div>
-    <div style="color: var(--accent);">${escapeHtml(file.name)}</div>
-    <div style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--muted);">
-      ${formatFileSize(file.size)} • Click to change
-    </div>
-  `;
-}
-
-function handleFileInputChange(e) {
-  const input = e.target;
-  const file = input.files[0];
-
-  if (!file) return;
-
-  // Find the drop zone sibling if it exists
-  const dropZone = input.parentElement.querySelector('.wb-drop-zone');
-  if (dropZone) {
-    updateDropZoneText(dropZone, file);
-  }
-}
-
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-function showNotification(message, type = 'success') {
-  const notification = document.getElementById('notification');
-  if (!notification) return;
-
-  notification.textContent = message;
-  notification.className = `notification ${type} show`;
-
-  setTimeout(() => {
-    notification.classList.remove('show');
-  }, 3000);
-}
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function formatFileSize(bytes) {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-}
