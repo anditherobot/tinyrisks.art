@@ -32,10 +32,15 @@ pip install -r requirements.txt
 
 3. Initialize the database:
 ```bash
+python3 init_db.py
+```
+
+Or run the app directly (it will initialize on first run):
+```bash
 python app.py
 ```
 
-The database will be automatically initialized on first run with a default admin user.
+The database will be automatically initialized with a default admin user.
 
 ### Admin Credentials
 

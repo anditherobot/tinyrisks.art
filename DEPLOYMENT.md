@@ -7,8 +7,12 @@ This project uses GitHub Actions for automatic deployment to your server.
 When you push to the `main` branch, GitHub Actions will automatically:
 1. SSH into your server
 2. Pull the latest code
-3. Restart the Flask service
-4. Verify the site is live
+3. Initialize/migrate/seed the database (safe to run multiple times)
+4. Restart the Flask application service
+5. Reload nginx
+6. Verify the site is live
+
+**Note:** The database file is NOT stored in source control to avoid conflicts. It's automatically initialized during deployment.
 
 ## 📋 One-Time Setup
 
@@ -125,9 +129,23 @@ ssh ubuntu@anditherobot.com 'tail -n 50 /var/www/tinyrisks.art/logs/flask_stderr
 ssh ubuntu@anditherobot.com
 cd /var/www/tinyrisks.art
 git pull origin master
+pip3 install -r requirements.txt  # Update dependencies if needed
+python3 init_db.py  # Initialize/migrate/seed database
+sudo systemctl reload nginx
 sudo systemctl restart tinyrisks
 sudo systemctl status tinyrisks
 ```
+
+### Manual database initialization
+If you need to manually initialize the database on the server:
+```bash
+ssh ubuntu@anditherobot.com
+cd /var/www/tinyrisks.art
+pip3 install -r requirements.txt  # Ensure dependencies are installed
+python3 init_db.py
+```
+
+This is safe to run multiple times - it will create tables and seed the default admin user only if they don't exist. The script will exit with an error if dependencies are missing or initialization fails.
 
 ## 📁 Repository
 
