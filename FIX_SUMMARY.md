@@ -30,8 +30,9 @@ The Flask application needs to be running and nginx needs to be configured as a 
 - Includes SSL configuration and security headers
 
 ### 2. Created systemd service file (`tinyrisks.service`)
-- Defines how to run the Flask application as a system service
+- Defines how to run the Flask application as a system service using Gunicorn (production WSGI server)
 - Runs as `www-data` user
+- Uses 4 worker processes for handling concurrent requests
 - Logs to `/var/www/tinyrisks.art/logs/`
 - Auto-restarts on failure
 

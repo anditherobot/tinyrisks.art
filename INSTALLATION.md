@@ -24,7 +24,7 @@ sudo apt install -y python3 python3-pip nginx
 # Navigate to the application directory
 cd /var/www/tinyrisks.art
 
-# Install Python dependencies
+# Install Python dependencies (including gunicorn for production)
 pip3 install -r requirements.txt
 
 # Create logs directory
@@ -116,9 +116,10 @@ tail -f /var/www/tinyrisks.art/logs/flask_stderr.log
 ```
 
 Common issues:
-- Missing Python dependencies: `pip3 install -r requirements.txt`
+- Missing Python dependencies: `pip3 install -r requirements.txt` (installs Flask, gunicorn, etc.)
 - Database not initialized: `python3 init_db.py`
 - Port 5000 already in use: Check with `sudo lsof -i :5000`
+- Gunicorn not found: Ensure gunicorn is installed with `pip3 install gunicorn`
 
 ### Nginx 404 Errors
 
