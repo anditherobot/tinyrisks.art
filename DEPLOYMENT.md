@@ -129,8 +129,12 @@ ssh ubuntu@anditherobot.com 'tail -n 50 /var/www/tinyrisks.art/logs/flask_stderr
 ssh ubuntu@anditherobot.com
 cd /var/www/tinyrisks.art
 git pull origin master
-pip3 install -r requirements.txt  # Update dependencies if needed
-python3 init_db.py  # Initialize/migrate/seed database
+# Use virtual environment for dependencies
+if [ ! -d venv ]; then python3 -m venv venv; fi
+./venv/bin/pip install -r requirements.txt
+./venv/bin/python init_db.py  # Initialize/migrate/seed database
+sudo chown -R www-data:www-data .
+sudo chmod -R 775 .
 sudo systemctl reload nginx
 sudo systemctl restart tinyrisks
 sudo systemctl status tinyrisks
@@ -141,8 +145,8 @@ If you need to manually initialize the database on the server:
 ```bash
 ssh ubuntu@anditherobot.com
 cd /var/www/tinyrisks.art
-pip3 install -r requirements.txt  # Ensure dependencies are installed
-python3 init_db.py
+./venv/bin/pip install -r requirements.txt  # Ensure dependencies are installed
+./venv/bin/python init_db.py
 ```
 
 This is safe to run multiple times - it will create tables and seed the default admin user only if they don't exist. The script will exit with an error if dependencies are missing or initialization fails.

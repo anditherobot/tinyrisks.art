@@ -14,11 +14,12 @@ cd /var/www/tinyrisks.art
 # Pull the latest changes (includes config files)
 git pull origin master
 
-# Install dependencies (includes gunicorn)
-pip3 install -r requirements.txt
+# Install dependencies in virtual environment
+if [ ! -d venv ]; then python3 -m venv venv; fi
+./venv/bin/pip install -r requirements.txt
 
 # Verify gunicorn installed successfully
-python3 -m gunicorn --version || { echo "Gunicorn installation failed. Check requirements.txt and pip output."; exit 1; }
+./venv/bin/gunicorn --version || { echo "Gunicorn installation failed. Check requirements.txt and pip output."; exit 1; }
 
 # Create logs directory (for nginx and other logs, not Flask)
 mkdir -p logs

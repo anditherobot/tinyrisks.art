@@ -52,18 +52,29 @@ jobs:
             # Create logs directory if it doesn't exist
             mkdir -p logs
             
-            # Install/update Python dependencies
-            pip3 install -q -r requirements.txt
+            # Create/Update virtual environment
+            if [ ! -d venv ]; then
+              echo "→ Creating virtual environment..."
+              python3 -m venv venv
+            fi
+            
+            # Install/update Python dependencies using venv
+            echo "→ Installing dependencies..."
+            ./venv/bin/pip install -q --upgrade pip
+            ./venv/bin/pip install -q -r requirements.txt
             
             # Ensure database is initialized, migrated, and seeded
-            python3 init_db.py
+            echo "→ Initializing database..."
+            ./venv/bin/python init_db.py
             if [ $? -ne 0 ]; then
               echo "❌ Database initialization failed!"
               exit 1
             fi
             
             # Set permissions
-            sudo chown -R www-data:www-data htdocs/
+            echo "→ Setting permissions..."
+            sudo chown -R www-data:www-data .
+            sudo chmod -R 775 .
             
             # Reload/restart services
             sudo systemctl reload nginx

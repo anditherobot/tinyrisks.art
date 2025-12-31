@@ -100,8 +100,9 @@ sudo systemctl reload nginx
 ### 5. Set File Permissions
 
 ```bash
-# Ensure www-data can access application files
-sudo chown -R www-data:www-data /var/www/tinyrisks.art/htdocs/
+# Ensure www-data can access and write to necessary files (uploads, database)
+sudo chown -R www-data:www-data /var/www/tinyrisks.art/
+sudo chmod -R 775 /var/www/tinyrisks.art/
 ```
 
 ## Verification
@@ -142,10 +143,10 @@ sudo journalctl -u tinyrisks -n 50 --no-pager
 ```
 
 Common issues:
-- Missing Python dependencies: `pip3 install -r requirements.txt` (installs Flask, gunicorn, Flask-Login)
-- Database not initialized: `python3 init_db.py`
+- Missing Python dependencies: `./venv/bin/pip install -r requirements.txt`
+- Database not initialized: `./venv/bin/python init_db.py`
 - Port 5000 already in use: Check with `sudo lsof -i :5000`
-- Gunicorn module not found: Ensure all dependencies are installed with `pip3 install -r requirements.txt`
+- Gunicorn module not found: Ensure all dependencies are installed in venv.
 
 ### Nginx 404 Errors
 
@@ -168,8 +169,12 @@ When deploying new code:
 ```bash
 cd /var/www/tinyrisks.art
 git pull origin master
-pip3 install -r requirements.txt  # Update dependencies if changed
-python3 init_db.py  # Safe to run - won't overwrite existing data
+# Use virtual environment for dependencies
+if [ ! -d venv ]; then python3 -m venv venv; fi
+./venv/bin/pip install -r requirements.txt
+./venv/bin/python init_db.py  # Safe to run - won't overwrite existing data
+sudo chown -R www-data:www-data .
+sudo chmod -R 775 .
 sudo systemctl restart tinyrisks
 sudo systemctl reload nginx
 ```
