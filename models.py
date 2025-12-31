@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import json
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -42,15 +43,28 @@ def init_db():
         )
     ''')
     
-    # Seed default user: captain/bateau
+    # Create community_images table for gallery CRUD
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS community_images (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            caption TEXT,
+            description TEXT,
+            images TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Seed default user: admin/adminpass123
     try:
-        password_hash = generate_password_hash('bateau')
+        password_hash = generate_password_hash('adminpass123')
         cursor.execute(
             'INSERT INTO users (username, password_hash) VALUES (?, ?)',
-            ('captain', password_hash)
+            ('admin', password_hash)
         )
         conn.commit()
-        print("Database initialized and default user 'captain' created")
+        print("Database initialized and default user 'admin' created")
     except sqlite3.IntegrityError:
         # User already exists
         print("Database already initialized")
@@ -109,3 +123,91 @@ def get_all_images():
     conn.close()
     
     return images
+
+# Community Images CRUD operations
+def create_community_image(title, caption, description, images):
+    """Create a new community image gallery item"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Store images as JSON array
+    images_json = json.dumps(images)
+    
+    cursor.execute(
+        'INSERT INTO community_images (title, caption, description, images) VALUES (?, ?, ?, ?)',
+        (title, caption, description, images_json)
+    )
+    conn.commit()
+    image_id = cursor.lastrowid
+    conn.close()
+    
+    return image_id
+
+def get_all_community_images():
+    """Get all community images"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM community_images ORDER BY created_at DESC')
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Convert to list of dicts and parse JSON images
+    images = []
+    for row in rows:
+        img = dict(row)
+        try:
+            img['images'] = json.loads(img['images'])
+        except (json.JSONDecodeError, TypeError) as e:
+            # Handle corrupted JSON data gracefully
+            print(f"Warning: Failed to parse images JSON for item {img.get('id')}: {e}")
+            img['images'] = []
+        images.append(img)
+    
+    return images
+
+def get_community_image_by_id(image_id):
+    """Get a single community image by ID"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM community_images WHERE id = ?', (image_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if row:
+        img = dict(row)
+        try:
+            img['images'] = json.loads(img['images'])
+        except (json.JSONDecodeError, TypeError) as e:
+            # Handle corrupted JSON data gracefully
+            print(f"Warning: Failed to parse images JSON for item {img.get('id')}: {e}")
+            img['images'] = []
+        return img
+    return None
+
+def update_community_image(image_id, title, caption, description, images):
+    """Update an existing community image"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    images_json = json.dumps(images)
+    
+    cursor.execute(
+        '''UPDATE community_images 
+           SET title = ?, caption = ?, description = ?, images = ?, 
+               updated_at = CURRENT_TIMESTAMP 
+           WHERE id = ?''',
+        (title, caption, description, images_json, image_id)
+    )
+    conn.commit()
+    conn.close()
+
+def delete_community_image(image_id):
+    """Delete a community image"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('DELETE FROM community_images WHERE id = ?', (image_id,))
+    conn.commit()
+    conn.close()

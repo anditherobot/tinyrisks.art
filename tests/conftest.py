@@ -64,9 +64,9 @@ def runner(app):
 
 @pytest.fixture
 def logged_in_client(client):
-    """A test client that is already logged in as captain."""
+    """A test client that is already logged in as admin."""
     client.post('/api/login', json={
-        'username': 'captain',
-        'password': 'bateau'
+        'username': 'admin',
+        'password': 'adminpass123'
     })
     return client
