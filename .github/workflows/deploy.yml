@@ -29,7 +29,7 @@ jobs:
           ssh -i ~/.ssh/deploy_key $SERVER_USER@$SERVER_HOST << 'EOF'
             set -e  # Exit on any error
             cd $REMOTE_PATH
-            git config --global --add safe.directory "$REMOTE_PATH"
+            git config --global --add safe.directory "$(pwd)"
             # Check if git repo exists, initialize if not
             REPO_URL="https://github.com/anditherobot/tinyrisks.art.git"
             
