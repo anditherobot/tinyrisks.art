@@ -293,7 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         elements.lists.posts.innerHTML = posts.map(post => {
-            const statusBadge = post.published ? 
+            // More explicit boolean check for published status
+            const statusBadge = Boolean(post.published) ? 
                 '<span style="padding:4px 8px;background:var(--accent);color:white;border-radius:4px;font-size:0.75rem">Published</span>' :
                 '<span style="padding:4px 8px;background:var(--muted);color:var(--bg);border-radius:4px;font-size:0.75rem">Draft</span>';
             
@@ -341,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.postInputs.tags.value = Array.isArray(post.tags) ? post.tags.join(', ') : '';
             elements.postInputs.readingTime.value = post.reading_time || 0;
             elements.postInputs.content.value = post.content;
-            elements.postInputs.published.checked = post.published === 1;
+            elements.postInputs.published.checked = Boolean(post.published);
             
             // Update preview
             elements.postInputs.content.dispatchEvent(new Event('input'));
@@ -363,7 +364,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Parse tags from comma-separated string
         const tagsString = elements.postInputs.tags.value.trim();
-        const tags = tagsString ? tagsString.split(',').map(t => t.trim()).filter(t => t) : [];
+        // Validate tags: alphanumeric, hyphens, underscores, spaces only
+        const tags = tagsString ? 
+            tagsString.split(',')
+                .map(t => t.trim())
+                .filter(t => t && /^[a-zA-Z0-9\s\-_]+$/.test(t)) : 
+            [];
         
         const postData = {
             title: elements.postInputs.title.value.trim(),

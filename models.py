@@ -1,8 +1,12 @@
 import sqlite3
 import os
 import json
+import logging
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 DATABASE_PATH = 'tinyrisks.db'
 
@@ -176,7 +180,7 @@ def get_all_community_images():
             img['images'] = json.loads(img['images'])
         except (json.JSONDecodeError, TypeError) as e:
             # Handle corrupted JSON data gracefully
-            print(f"Warning: Failed to parse images JSON for item {img.get('id')}: {e}")
+            logger.warning(f"Failed to parse images JSON for item {img.get('id')}: {e}")
             img['images'] = []
         images.append(img)
     
@@ -197,7 +201,7 @@ def get_community_image_by_id(image_id):
             img['images'] = json.loads(img['images'])
         except (json.JSONDecodeError, TypeError) as e:
             # Handle corrupted JSON data gracefully
-            print(f"Warning: Failed to parse images JSON for item {img.get('id')}: {e}")
+            logger.warning(f"Failed to parse images JSON for item {img.get('id')}: {e}")
             img['images'] = []
         return img
     return None
@@ -268,7 +272,7 @@ def get_all_text_posts(published_only=False):
         try:
             post['tags'] = json.loads(post['tags']) if post['tags'] else []
         except (json.JSONDecodeError, TypeError) as e:
-            print(f"Warning: Failed to parse tags JSON for post {post.get('id')}: {e}")
+            logger.warning(f"Failed to parse tags JSON for post {post.get('id')}: {e}")
             post['tags'] = []
         posts.append(post)
     
@@ -288,7 +292,7 @@ def get_text_post_by_id(post_id):
         try:
             post['tags'] = json.loads(post['tags']) if post['tags'] else []
         except (json.JSONDecodeError, TypeError) as e:
-            print(f"Warning: Failed to parse tags JSON for post {post.get('id')}: {e}")
+            logger.warning(f"Failed to parse tags JSON for post {post.get('id')}: {e}")
             post['tags'] = []
         return post
     return None
