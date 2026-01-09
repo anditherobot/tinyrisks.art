@@ -6,6 +6,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from models import init_db, verify_user, get_user_by_id, save_image_metadata, get_all_images
 from models import create_community_image, get_all_community_images, get_community_image_by_id
 from models import update_community_image, delete_community_image
+from models import create_text_post, get_all_text_posts, get_text_post_by_id
+from models import update_text_post, delete_text_post
 
 # Configure app to serve static files from htdocs
 app = Flask(__name__, static_folder='htdocs')
@@ -300,6 +302,117 @@ def delete_community_image_api(image_id):
         
         # Delete from database
         delete_community_image(image_id)
+        
+        return jsonify({'success': True})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# Text Posts CRUD API
+@app.route('/api/text-posts', methods=['GET'])
+def get_text_posts():
+    """Get all text posts"""
+    # Admin sees all posts, public only sees published
+    published_only = not current_user.is_authenticated
+    posts = get_all_text_posts(published_only=published_only)
+    return jsonify(posts)
+
+@app.route('/api/text-posts/<int:post_id>', methods=['GET'])
+def get_text_post(post_id):
+    """Get a single text post by ID"""
+    post = get_text_post_by_id(post_id)
+    if post:
+        # Non-authenticated users can only see published posts
+        if not current_user.is_authenticated and not post.get('published'):
+            return jsonify({'error': 'Post not found'}), 404
+        return jsonify(post)
+    return jsonify({'error': 'Post not found'}), 404
+
+@app.route('/api/text-posts', methods=['POST'])
+@login_required
+def create_text_post_api():
+    """Create a new text post"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        title = data.get('title', '').strip()
+        if not title:
+            return jsonify({'error': 'Title is required'}), 400
+        
+        content = data.get('content', '').strip()
+        if not content:
+            return jsonify({'error': 'Content is required'}), 400
+        
+        subtitle = data.get('subtitle', '').strip()
+        category = data.get('category', '').strip()
+        tags = data.get('tags', [])
+        reading_time = data.get('reading_time', 0)
+        published = data.get('published', False)
+        
+        # Validate tags is a list
+        if not isinstance(tags, list):
+            return jsonify({'error': 'Tags must be a list'}), 400
+        
+        post_id = create_text_post(title, subtitle, content, category, tags, reading_time, published)
+        
+        return jsonify({
+            'success': True,
+            'id': post_id
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/text-posts/<int:post_id>', methods=['PUT'])
+@login_required
+def update_text_post_api(post_id):
+    """Update an existing text post"""
+    try:
+        # Check if post exists
+        existing_post = get_text_post_by_id(post_id)
+        if not existing_post:
+            return jsonify({'error': 'Post not found'}), 404
+        
+        data = request.get_json()
+        
+        # Validate required fields
+        title = data.get('title', '').strip()
+        if not title:
+            return jsonify({'error': 'Title is required'}), 400
+        
+        content = data.get('content', '').strip()
+        if not content:
+            return jsonify({'error': 'Content is required'}), 400
+        
+        subtitle = data.get('subtitle', '').strip()
+        category = data.get('category', '').strip()
+        tags = data.get('tags', [])
+        reading_time = data.get('reading_time', 0)
+        published = data.get('published', False)
+        
+        # Validate tags is a list
+        if not isinstance(tags, list):
+            return jsonify({'error': 'Tags must be a list'}), 400
+        
+        update_text_post(post_id, title, subtitle, content, category, tags, reading_time, published)
+        
+        return jsonify({'success': True, 'id': post_id})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/text-posts/<int:post_id>', methods=['DELETE'])
+@login_required
+def delete_text_post_api(post_id):
+    """Delete a text post"""
+    try:
+        # Check if post exists
+        post = get_text_post_by_id(post_id)
+        if not post:
+            return jsonify({'error': 'Post not found'}), 404
+        
+        delete_text_post(post_id)
         
         return jsonify({'success': True})
     
