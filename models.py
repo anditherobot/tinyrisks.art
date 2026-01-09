@@ -56,6 +56,22 @@ def init_db():
         )
     ''')
     
+    # Create text_posts table for writing/blog CRUD
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS text_posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            subtitle TEXT,
+            content TEXT NOT NULL,
+            category TEXT,
+            tags TEXT,
+            reading_time INTEGER,
+            published BOOLEAN DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
     # Seed default user: admin/adminpass123
     try:
         password_hash = generate_password_hash('adminpass123')
@@ -209,5 +225,96 @@ def delete_community_image(image_id):
     cursor = conn.cursor()
     
     cursor.execute('DELETE FROM community_images WHERE id = ?', (image_id,))
+    conn.commit()
+    conn.close()
+
+# Text Posts CRUD operations
+def create_text_post(title, subtitle, content, category, tags, reading_time, published=False):
+    """Create a new text post"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Store tags as JSON array if provided
+    tags_json = json.dumps(tags) if tags else None
+    
+    cursor.execute(
+        '''INSERT INTO text_posts (title, subtitle, content, category, tags, reading_time, published) 
+           VALUES (?, ?, ?, ?, ?, ?, ?)''',
+        (title, subtitle, content, category, tags_json, reading_time, published)
+    )
+    conn.commit()
+    post_id = cursor.lastrowid
+    conn.close()
+    
+    return post_id
+
+def get_all_text_posts(published_only=False):
+    """Get all text posts"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if published_only:
+        cursor.execute('SELECT * FROM text_posts WHERE published = 1 ORDER BY created_at DESC')
+    else:
+        cursor.execute('SELECT * FROM text_posts ORDER BY created_at DESC')
+    
+    rows = cursor.fetchall()
+    conn.close()
+    
+    # Convert to list of dicts and parse JSON tags
+    posts = []
+    for row in rows:
+        post = dict(row)
+        try:
+            post['tags'] = json.loads(post['tags']) if post['tags'] else []
+        except (json.JSONDecodeError, TypeError) as e:
+            print(f"Warning: Failed to parse tags JSON for post {post.get('id')}: {e}")
+            post['tags'] = []
+        posts.append(post)
+    
+    return posts
+
+def get_text_post_by_id(post_id):
+    """Get a single text post by ID"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT * FROM text_posts WHERE id = ?', (post_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if row:
+        post = dict(row)
+        try:
+            post['tags'] = json.loads(post['tags']) if post['tags'] else []
+        except (json.JSONDecodeError, TypeError) as e:
+            print(f"Warning: Failed to parse tags JSON for post {post.get('id')}: {e}")
+            post['tags'] = []
+        return post
+    return None
+
+def update_text_post(post_id, title, subtitle, content, category, tags, reading_time, published):
+    """Update an existing text post"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    tags_json = json.dumps(tags) if tags else None
+    
+    cursor.execute(
+        '''UPDATE text_posts 
+           SET title = ?, subtitle = ?, content = ?, category = ?, tags = ?, 
+               reading_time = ?, published = ?, updated_at = CURRENT_TIMESTAMP 
+           WHERE id = ?''',
+        (title, subtitle, content, category, tags_json, reading_time, published, post_id)
+    )
+    conn.commit()
+    conn.close()
+
+def delete_text_post(post_id):
+    """Delete a text post"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('DELETE FROM text_posts WHERE id = ?', (post_id,))
     conn.commit()
     conn.close()
