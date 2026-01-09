@@ -33,6 +33,10 @@ jobs:
             # Check if git repo exists, initialize if not
             REPO_URL="https://github.com/anditherobot/tinyrisks.art.git"
             
+            # Ensure we have permissions to update files
+            sudo chown -R $USER:www-data .
+            sudo chmod -R 775 .
+            
             if [ ! -d .git ]; then
               echo "Initializing git repository..."
               git init
@@ -46,7 +50,10 @@ jobs:
                 echo "Adding remote origin..."
                 git remote add origin "$REPO_URL"
               fi
-              git pull origin master
+              echo "Updating from origin..."
+              git fetch origin master
+              git reset --hard origin/master
+              git clean -fd
             fi
             
             # Create logs directory if it doesn't exist
@@ -73,8 +80,9 @@ jobs:
             
             # Set permissions
             echo "→ Setting permissions..."
-            sudo chown -R www-data:www-data .
+            sudo chown -R $USER:www-data .
             sudo chmod -R 775 .
+            find . -type d -exec sudo chmod g+s {} +
             
             # Reload/restart services
             sudo systemctl reload nginx
